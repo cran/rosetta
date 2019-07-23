@@ -12,7 +12,7 @@
 #' \code{file} is still available for backward compatibility but will
 #' eventually be phased out.
 #' @param errorMessage The error message that is shown if the file does not
-#' exist or does not have the right extension; "[defaultErrorMessage]" is
+#' exist or does not have the right extension; "\[defaultErrorMessage\]" is
 #' replaced with a default error message (and can be included in longer
 #' messages).
 #' @param applyRioLabels Whether to apply the labels supplied by Rio. This will

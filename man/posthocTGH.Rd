@@ -31,7 +31,7 @@ standards (i.e. replace all values lower than .001 with '<.001'). This only
 applies to the printing of the object, not to the way the p values are
 stored in the object.}
 
-\item{\dots}{Any additional arguments are passed on to the `print` function.}
+\item{\dots}{Any additional arguments are passed on to the \code{print} function.}
 }
 \value{
 A list of three elements: \item{input}{List with input arguments}
@@ -48,7 +48,7 @@ Games-Howell methods.
 This function is based on a file that was once hosted at
 http://www.psych.yorku.ca/cribbie/6130/games_howell.R, but has been removed
 since. It was then adjusted for implementation in the
-\code{\link{userfriendlyscience}} package. Jeffrey Baggett needed the
+\link[userfriendlyscience:userfriendlyscience]{userfriendlyscience::userfriendlyscience} package. Jeffrey Baggett needed the
 confidence intervals, and so emailed them, after which his updated function
 was used. In the meantime, it appears Aaron Schlegel
 (\url{https://rpubs.com/aaronsc32}) independently developed a version with
@@ -74,6 +74,6 @@ posthocTGH(y=ChickWeight$weight, x=ChickWeight$Diet);
 Gjalt-Jorn Peters (Open University of the Netherlands) & Jeff Bagget
 (University of Wisconsin - La Crosse)
 
-Maintainer: Gjalt-Jorn Peters <gjalt-jorn@userfriendlyscience.com>
+Maintainer: Gjalt-Jorn Peters \href{mailto:gjalt-jorn@userfriendlyscience.com}{gjalt-jorn@userfriendlyscience.com}
 }
 \keyword{utilities}
