@@ -1,9 +1,9 @@
-83176dcfc9dc1c61e4767672ebd6ec6f *DESCRIPTION
-76646e9075873e4a14a57deca04f849e *NAMESPACE
+3f0d7a4a9d730b70addc8cbebfc8ed83 *DESCRIPTION
+043409175a0c6d44bfd98472a03301e3 *NAMESPACE
 2d6783fa46a962ff96b42adfceccb753 *R/crossTab.R
 ba6f19779a2fbbc56f889c004b640647 *R/dlvPlot.R
 7bd85f5566a58f1ffbd186103c20b56d *R/exportToSPSS.R
-6332d8b17243bd7e43f0b0dd6a55a0b6 *R/fanova.R
+03e694586dade682bb808b77ee3100a5 *R/fanova.R
 af49161f795517d050bef0937ae98796 *R/filterBy.R
 54bec73d45e550e4ad231f8c7f2b3be5 *R/freq.R
 c958bc06f89c158442d91f3755d38d66 *R/frequencies.R
@@ -17,13 +17,13 @@ ed653b11782e2408dafd012f45735e31 *R/logRegr.R
 c5e27036bc89ec19ef009c5d34a0a8d4 *R/modus.R
 cbd8917061d41680cd5cea0999e6c0b8 *R/oneway.R
 198eb15758659ab160054afaa0832434 *R/posthocTGH.R
-996989d5c1a6957f6c781057d65c911d *R/regr.R
+4c24adfe6a12a5a8dc51e47e30fe15a8 *R/regr.R
 cdfae74a595b32db1fd56d44d01b1259 *R/useAll.R
 c52f5015f837c16ef0e99ca86d1d8949 *README.md
 32cd4b5a2e3b8676c1864a750b48126c *man/basicSPSStranslation.Rd
 6145f31fd39affab19fe968544ee7e25 *man/crossTab.Rd
 16edf51ce0bed569af4ef5ea2029f844 *man/dlvPlot.Rd
-7a086758f6b0693281e32e83253759ca *man/fanova.Rd
+7bdc2f11d3af1310ea830ab043532df0 *man/fanova.Rd
 502a5f8dd6ba90060101596366cb7d58 *man/figures/README-pressure-1.png
 97c8910c2abbb5ad353a27be62b80c67 *man/frequencies.Rd
 e7f1f7c1ad194ea7130c5fb7427e04e8 *man/ggBoxplot.Rd
@@ -32,4 +32,4 @@ e7f1f7c1ad194ea7130c5fb7427e04e8 *man/ggBoxplot.Rd
 0b10b29010cd171864510c395a4ac322 *man/meanDiff.multi.Rd
 beb9b02ee04249af51e9c677b0afbc01 *man/oneway.Rd
 283c042804fe825708b9adb0205bb839 *man/posthocTGH.Rd
-d37aa032ab7a0fe7919c0210c589547a *man/regr.Rd
+03646647a49c7234f9b432972ab17f81 *man/regr.Rd

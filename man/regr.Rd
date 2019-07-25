@@ -2,6 +2,8 @@
 % Please edit documentation in R/regr.R
 \name{regr}
 \alias{regr}
+\alias{print.regr}
+\alias{pander.regr}
 \title{regr: a simple regression analysis wrapper}
 \usage{
 regr(formula, data = NULL, conf.level = 0.95, digits = 2,
@@ -9,6 +11,12 @@ regr(formula, data = NULL, conf.level = 0.95, digits = 2,
   pointAlpha = 0.5, collinearity = FALSE, influential = FALSE,
   ci.method = c("widest", "r.con", "olkinfinn"),
   ci.method.note = FALSE, env = parent.frame())
+
+\method{print}{regr}(x, digits = x$input$digits,
+  pvalueDigits = x$input$pvalueDigits, ...)
+
+\method{pander}{regr}(x, digits = x$input$digits,
+  pvalueDigits = x$input$pvalueDigits, ...)
 }
 \arguments{
 \item{formula}{The formula of the regression analysis, of the form \code{y ~
@@ -51,6 +59,10 @@ These are stored in the returned object in the \code{lm.influence.raw} and
 interval around R squared, and whether to display a note about this choice.}
 
 \item{env}{The enviroment where to evaluate the formula.}
+
+\item{x}{The object to print (i.e. as produced by \code{regr}).}
+
+\item{\dots}{Any additional arguments are ignored.}
 }
 \value{
 A list of three elements: \item{input}{List with input arguments}

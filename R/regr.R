@@ -36,6 +36,8 @@
 #' @param ci.method,ci.method.note Which method to use for the confidence
 #' interval around R squared, and whether to display a note about this choice.
 #' @param env The enviroment where to evaluate the formula.
+#' @param x The object to print (i.e. as produced by `regr`).
+#' @param \dots Any additional arguments are ignored.
 #' @return A list of three elements: \item{input}{List with input arguments}
 #' \item{intermediate}{List of intermediate objects, such as the lm and confint
 #' objects.} \item{output}{List with two dataframes, one with the raw
@@ -321,6 +323,9 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
 
 }
 
+#' @method print regr
+#' @rdname regr
+#' @export
 print.regr <- function(x, digits=x$input$digits,
                        pvalueDigits=x$input$pvalueDigits, ...) {
 
@@ -428,6 +433,9 @@ print.regr <- function(x, digits=x$input$digits,
 }
 
 ### Function to smoothly pander output from regr function in userfriendlyscience
+#' @method pander regr
+#' @rdname regr
+#' @export
 pander.regr <- function (x, digits = x$input$digits, pvalueDigits = x$input$pvalueDigits, ...) {
   pander::pandoc.p(paste0("\n\n#### Regression analysis for formula: ", x$intermediate$formula.as.character));
   pander::pandoc.p("\n\n##### Significance test of the entire model (all predictors together):\n\n");

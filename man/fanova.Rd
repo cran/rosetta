@@ -2,10 +2,13 @@
 % Please edit documentation in R/fanova.R
 \name{fanova}
 \alias{fanova}
+\alias{print.fanova}
 \title{Flexible anova}
 \usage{
 fanova(data, y, between = NULL, covar = NULL, plot = FALSE,
   levene = FALSE, digits = 2, contrast = NULL)
+
+\method{print}{fanova}(x, digits = x$input$digits, ...)
 }
 \arguments{
 \item{data}{The dataset containing the variables to analyse.}
@@ -35,6 +38,10 @@ moderator (and the first predictor is plotted on the x axis).}
 results. The p-value is printed with one extra digit.}
 
 \item{contrast}{This functionality has not been implemented yet.}
+
+\item{x}{The object to print (i.e. as produced by \code{regr}).}
+
+\item{\dots}{Any additional arguments are ignored.}
 }
 \value{
 Mainly, this function prints its results, but it also returns them

@@ -27,10 +27,13 @@
 #' @param digits Number of digits (actually: decimals) to use when printing
 #' results. The p-value is printed with one extra digit.
 #' @param contrast This functionality has not been implemented yet.
+#' @param x The object to print (i.e. as produced by `regr`).
+#' @param \dots Any additional arguments are ignored.
 #' @return Mainly, this function prints its results, but it also returns them
 #' in an object containing three lists: \item{input}{The arguments specified
 #' when calling the function} \item{intermediate}{Intermediat objects and
 #' values} \item{output}{The results such as the plot.}
+#' @rdname fanova
 #' @author Gjalt-Jorn Peters
 #'
 #' Maintainer: Gjalt-Jorn Peters <gjalt-jorn@@userfriendlyscience.com>
@@ -250,6 +253,9 @@ fanova <- function(data,
 
 }
 
+#' @method print fanova
+#' @rdname fanova
+#' @export
 print.fanova <- function(x, digits=x$input$digits, ...) {
   cat(x$output$msg);
   cat("\n");
