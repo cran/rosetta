@@ -182,8 +182,6 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
   res$intermediate$summary.raw <- summary(res$intermediate$lm.raw);
   res$intermediate$summary.scaled <- summary(res$intermediate$lm.scaled);
 
-  print(res$intermediate$summary.raw);
-
   ### Generate output
   res$output$coef.raw <- cbind(data.frame(res$intermediate$confint.raw[, 1],
                                           res$intermediate$confint.raw[, 2]),
