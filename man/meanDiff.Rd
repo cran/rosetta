@@ -6,15 +6,21 @@
 \alias{pander.meanDiff}
 \title{meanDiff}
 \usage{
-meanDiff(x, y = NULL, paired = FALSE, r.prepost = NULL,
-  var.equal = "test", conf.level = 0.95, plot = FALSE, digits = 2,
-  envir = parent.frame())
+meanDiff(
+  x,
+  y = NULL,
+  paired = FALSE,
+  r.prepost = NULL,
+  var.equal = "test",
+  conf.level = 0.95,
+  plot = FALSE,
+  digits = 2,
+  envir = parent.frame()
+)
 
-\method{print}{meanDiff}(x, digits = x$digits, powerDigits = x$digits +
-  2, ...)
+\method{print}{meanDiff}(x, digits = x$digits, powerDigits = x$digits + 2, ...)
 
-\method{pander}{meanDiff}(x, digits = x$digits, powerDigits = x$digits
-  + 2, ...)
+\method{pander}{meanDiff}(x, digits = x$digits, powerDigits = x$digits + 2, ...)
 }
 \arguments{
 \item{x}{Dichotomous factor: variable 1; can also be a formula of the form y

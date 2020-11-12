@@ -5,8 +5,16 @@
 \alias{print.fanova}
 \title{Flexible anova}
 \usage{
-fanova(data, y, between = NULL, covar = NULL, plot = FALSE,
-  levene = FALSE, digits = 2, contrast = NULL)
+fanova(
+  data,
+  y,
+  between = NULL,
+  covar = NULL,
+  plot = FALSE,
+  levene = FALSE,
+  digits = 2,
+  contrast = NULL
+)
 
 \method{print}{fanova}(x, digits = x$input$digits, ...)
 }

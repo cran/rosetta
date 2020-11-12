@@ -239,7 +239,7 @@ oneway <- function(y, x, posthoc=NULL, means=FALSE, fullDescribe=FALSE,
       res$intermediate$posthocLetters.pValues <-
         res$intermediate$posthoc$p;
       res$intermediate$posthocLetters.logical <-
-        res$intermediate$posthocLetters.pValues > posthocLetterAlpha;
+        res$intermediate$posthocLetters.pValues < posthocLetterAlpha;
       names(res$intermediate$posthocLetters.logical) <-
         row.names(res$intermediate$posthoc);
       res$output$posthocLetters <-

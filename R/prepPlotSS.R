@@ -17,7 +17,7 @@
 #' @export
 
 prepPlotSS <- function(data,xvar,yvar,mod, mvars, parEst, vdichotomous,
-                              modLevels, predLevels = NULL, xquant, yquant, path = NULL) {
+                       modLevels, predLevels = NULL, xquant, yquant, path = NULL) {
 
 
     if (vdichotomous) {
@@ -78,26 +78,32 @@ prepPlotSS <- function(data,xvar,yvar,mod, mvars, parEst, vdichotomous,
 
 
     names(plotDat2) <- c("lwr",yvar,"upr", xvar, mod, "mediator")
-    ymin <- min(plotDat2$yvar, plotDat2$lwr,plotDat2$upr, yquant)
-    ymax <- max(plotDat2$yvar, plotDat2$lwr,plotDat2$upr, yquant)
+    ymin <- min(c(plotDat2$yvar, plotDat2$lwr,plotDat2$upr, yquant))
+    ymax <- max(c(plotDat2$yvar, plotDat2$lwr,plotDat2$upr, yquant))
     if (!is.null(predLevels)) {
       plotDat2[,xvar] <- as.factor(plotDat2[,xvar])
       levels(plotDat2[,xvar]) <- predLevels
     }
 
-    plot_simpleSlopes <- ggplot(plotDat2, aes_string(x=xvar,y=yvar,group= mod, colour=mod)) +
-       geom_point() + geom_line() +
-       geom_ribbon(aes(ymin=plotDat2$lwr, ymax=plotDat2$upr),alpha=.3, linetype=0) +
-       ylim(ymin,ymax) +
-       theme(plot.title = ggplot2::element_text(lineheight=.4, face="italic")) +
-       ggtitle(paste0("Simple slopes in ", path , " path for indirect effect ")) +
-       scale_colour_discrete(name  = mod, labels=legendLabel)
+    plot_simpleSlopes <-
+      ggplot2::ggplot(plotDat2,
+                      ggplot2::aes_string(x=xvar,
+                                          y=yvar,
+                                          group= mod,
+                                          colour=mod)) +
+      ggplot2::geom_point() +
+      ggplot2::geom_line() +
+      ggplot2::geom_ribbon(ggplot2::aes_string(ymin='lwr',
+                                               ymax='upr'),
+                           alpha=.3,
+                           linetype=0) +
+      ggplot2::ylim(ymin,ymax) +
+      ggplot2::theme(plot.title = ggplot2::element_text(lineheight=.4, face="italic")) +
+      ggplot2::ggtitle(paste0("Simple slopes in ", path , " path for indirect effect ")) +
+      ggplot2::scale_colour_discrete(name  = mod, labels=legendLabel) +
+      ggplot2::facet_grid(rows=ggplot2::vars(plotDat2$mediator))
 
-    plot_simpleSlopes <- plot_simpleSlopes + facet_grid(rows=vars(plotDat2$mediator))
-
-    print(plot_simpleSlopes)
-
-  return()
+  return(plot_simpleSlopes)
 
 } # end function
 

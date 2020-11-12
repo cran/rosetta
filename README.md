@@ -2,9 +2,9 @@
 <!-- badges: start -->
 
 [![Pipeline
-status](https://gitlab.com/r-packages/rosetta/badges/master/pipeline.svg)](https://gitlab.com/r-packages/rosetta/commits/master)
+status](https://gitlab.com/r-packages/rosetta/badges/prod/pipeline.svg)](https://gitlab.com/r-packages/rosetta/commits/prod)
 [![Coverage
-status](https://codecov.io/gl/r-packages/rosetta/branch/master/graph/badge.svg)](https://codecov.io/gl/r-packages/rosetta?branch=master)
+status](https://codecov.io/gl/r-packages/rosetta/branch/prod/graph/badge.svg)](https://codecov.io/gl/r-packages/rosetta?branch=prod)
 [![Version on
 CRAN](https://www.r-pkg.org/badges/version/rosetta?color=brightgreen)](https://cran.r-project.org/package=rosetta)
 [![Version on
@@ -18,7 +18,7 @@ CRAN](https://cranlogs.r-pkg.org/badges/grand-total/rosetta?color=brightgreen)](
 rosetta: Parallel Use of Statistical Packages in Teaching
 
 The pkgdown website for this project is located at
-<https://r-packages.gitlab.io/rosetta>.
+<https://r-packages.gitlab.io/rosetta/>.
 
 <!--------------------------------------------->
 
@@ -57,11 +57,18 @@ install.packages('rosetta');
 ```
 
 You can install the development version of `rosetta` from
-[GitLab](https://gitlab.com) with:
+[GitLab](https://about.gitlab.com) with:
 
 ``` r
-devtools::install_gitlab('r-packages/rosetta');
+remotes::install_gitlab('r-packages/rosetta');
 ```
 
-(assuming you have `devtools` installed; otherwise, install that first
-using the `install.packages` function)
+If you want the even more cutting edge version, you can install from the
+`dev` branch (as opposed to the default branch, `prod`) with:
+
+``` r
+remotes::install_gitlab('r-packages/rosetta@dev');
+```
+
+(This is assuming you have the `remotes` packages installed; otherwise,
+install that first using the `install.packages` function.)

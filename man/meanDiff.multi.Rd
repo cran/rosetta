@@ -5,12 +5,20 @@
 \alias{print.meanDiff.multi}
 \title{meanDiff.multi}
 \usage{
-meanDiff.multi(dat, y, x = NULL, var.equal = "yes",
-  conf.level = 0.95, digits = 2, orientation = "vertical",
-  zeroLineColor = "grey", zeroLineSize = 1.2, envir = parent.frame())
+meanDiff.multi(
+  dat,
+  y,
+  x = NULL,
+  var.equal = "yes",
+  conf.level = 0.95,
+  digits = 2,
+  orientation = "vertical",
+  zeroLineColor = "grey",
+  zeroLineSize = 1.2,
+  envir = parent.frame()
+)
 
-\method{print}{meanDiff.multi}(x, digits = x$digits,
-  powerDigits = x$digits + 2, ...)
+\method{print}{meanDiff.multi}(x, digits = x$digits, powerDigits = x$digits + 2, ...)
 }
 \arguments{
 \item{dat}{The dataframe containing the variables involved in the mean

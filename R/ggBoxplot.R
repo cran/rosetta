@@ -6,7 +6,7 @@
 #'
 #' This function is based on JasonAizkalns' answer to a question on Stack
 #' Exchange (Cross Validated; see
-#' \url{http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r}).
+#' \url{https://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r}).
 #'
 #' @param dat Either a vector of values (to display in the box plot) or a
 #' dataframe containing variables to display in the box plot.
@@ -49,14 +49,14 @@ ggBoxplot <- function(dat, y = NULL, x = NULL,
       varname <- deparse(substitute(dat));
       ### Take variable only in case a variable in a dataframe was specified
       varname <- ufs::extractVarName(varname);
-      tmpDf <- data.frame(dat);
+      tmpDf <- stats::na.omit(data.frame(dat));
       names(tmpDf) <- varname;
       tmpDf$outlier <- ifelse(ufs::iqrOutlier(tmpDf[, varname]),
                               1:nrow(tmpDf),
                               as.numeric(NA));
       resPlot <- ggplot2::ggplot(tmpDf,
                                  ggplot2::aes_string(y=varname)) +
-        ggplot2::geom_boxplot(ggplot2::aes(x=factor(varname)), ...) +
+        ggplot2::geom_boxplot(ggplot2::aes(x=factor(varname)), na.rm=TRUE, ...) +
         ggplot2::xlab("") + theme +
         ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                        axis.ticks.x = ggplot2::element_blank());
@@ -95,13 +95,13 @@ ggBoxplot <- function(dat, y = NULL, x = NULL,
 
     if (is.null(x)) {
 
-      dat$outlier <- ifelse(ufs::iqrOutlier(dat[, y]),
+      dat$outlier <- ifelse(stats::na.omit(ufs::iqrOutlier(dat[, y])),
                             1:nrow(dat),
                             as.numeric(NA));
 
       resPlot <-
         ggplot2::ggplot(dat, ggplot2::aes_string(y=y)) +
-        ggplot2::geom_boxplot(ggplot2::aes(x=factor(y)), ...) +
+        ggplot2::geom_boxplot(ggplot2::aes(x=factor(y)), na.rm=TRUE, ...) +
         ggplot2::xlab("") + theme +
         ggplot2::theme(axis.text.x = ggplot2::element_blank(),
                        axis.ticks.x = ggplot2::element_blank());

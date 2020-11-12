@@ -4,8 +4,8 @@
 #' one convenient interface that provides similar output to the regression
 #' function in SPSS. It automatically provides confidence intervals and
 #' standardized coefficients. Note that this function is meant for teaching
-#' purposes, and therefore it's only for very basic regression analyses.
-#'
+#' purposes, and therefore it's only for very basic regression analyses; for
+#' more functionality, use the base R function `lm` or e.g. the `lme4` package.
 #'
 #' @param formula The formula of the regression analysis, of the form \code{y ~
 #' x1 + x2}, where y is the dependent variable and x1 and x2 are the
@@ -32,12 +32,24 @@
 #' i.e. \emph{VIF = 1 / tolerance}).
 #' @param influential Whether to compute diagnostics for influential cases.
 #' These are stored in the returned object in the \code{lm.influence.raw} and
-#' \code{lm.influence.scaled} objects in the \code{intermediate} object.
+#' \code{lm.influence.scaled} objects in the \code{intermediate} object. They
+#' are not printed.
 #' @param ci.method,ci.method.note Which method to use for the confidence
 #' interval around R squared, and whether to display a note about this choice.
-#' @param env The enviroment where to evaluate the formula.
+#' @param headingLevel The number of hashes to print in front of the headings
+#' when printing while knitting
 #' @param x The object to print (i.e. as produced by `regr`).
-#' @param \dots Any additional arguments are ignored.
+#' @param forceKnitrOutput Force knitr output.
+#' @param quiet Passed on to [knitr::knit()] whether it should b
+#'  chatty (`FALSE`) or quiet (`TRUE`).
+#' @param echoPartial Whether to show the executed code in the R Markdown
+#' partial (`TRUE`) or not (`FALSE`).
+#' @param partialFile This can be used to specify a custom partial file. The
+#' file will have object `x` available.
+#' @param \dots Any additional arguments are passed to the default print method
+#' by the print method, and to [rmdpartials::partial()] when knitting an
+#' RMarkdown partial.
+#' @param env The enviroment where to evaluate the formula.
 #' @return A list of three elements: \item{input}{List with input arguments}
 #' \item{intermediate}{List of intermediate objects, such as the lm and confint
 #' objects.} \item{output}{List with two dataframes, one with the raw
@@ -45,22 +57,37 @@
 #' @author Gjalt-Jorn Peters
 #'
 #' Maintainer: Gjalt-Jorn Peters <gjalt-jorn@@userfriendlyscience.com>
-#' @keywords utilities
 #' @examples
 #'
 #' ### Do a simple regression analysis
-#' regr(age ~ circumference, dat=Orange);
+#' rosetta::regr(age ~ circumference, dat=Orange);
 #'
 #' ### Show more digits for the p-value
-#' regr(Orange$age ~ Orange$circumference, pvalueDigits=18);
+#' rosetta::regr(Orange$age ~ Orange$circumference, pvalueDigits=18);
 #'
+#' \dontrun{
+#' ### An example with an interaction term, showing in the
+#' ### viewer
+#' rosetta::rosettaRegr_partial(
+#'   rosetta::regr(
+#'     mpg ~ wt + hp + wt:hp,
+#'     dat=mtcars,
+#'     coefficients = "raw",
+#'     plot=TRUE,
+#'     collinearity=TRUE
+#'   )
+#' );
+#' }
+#'
+#' @rdname rosettaRegr
 #' @export regr
 regr <- function(formula, data=NULL, conf.level=.95, digits=2,
                  pvalueDigits = 3, coefficients=c("raw", "scaled"),
                  plot=FALSE, pointAlpha = .5,
                  collinearity = FALSE, influential = FALSE,
                  ci.method = c("widest", "r.con", "olkinfinn"),
-                 ci.method.note = FALSE, env=parent.frame()) {
+                 ci.method.note = FALSE,
+                 headingLevel = 3, env=parent.frame()) {
 
   dat <- data;
 
@@ -196,37 +223,44 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
       'estimate', 'se', 't', 'p');
 
   if (plot) {
+    res$intermediate$dat.plot <-
+      res$intermediate$dat.raw[
+        stats::complete.cases(res$intermediate$dat.raw),
+      ];
     if (length(res$intermediate$variables_namesOnly) == 2) {
       res$output$plot <-
-        ggplot2::ggplot(res$intermediate$dat.raw,
+        ggplot2::ggplot(res$intermediate$dat.plot,
                         ggplot2::aes_string(y=res$intermediate$variables_namesOnly[1],
                         x=res$intermediate$variables_namesOnly[2])) +
-        ggplot2::geom_point(alpha = pointAlpha) +
-        ggplot2::geom_smooth(method='lm') +
+        ggplot2::geom_point(alpha = pointAlpha,
+                            position = ggplot2::position_jitter()) +
+        ggplot2::geom_smooth(method='lm', formula = "y ~ x") +
         ggplot2::theme_bw();
-    } else if (length(res$intermediate$variables_namesOnly) == 3) {
+    } else if (nrow(res$output$coef.raw) == 4) {
+    ### Used to be fourth one is the interaction term
+    #} else if ((length(res$intermediate$variables_namesOnly) == 3)) {
 
-      if (is.numeric(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[2]]) &&
-          is.numeric(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[3]])) {
+      if (is.numeric(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[2]]) &&
+          is.numeric(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[3]])) {
         ### Both numeric, so we treat the second one as moderator and compute the line
 
         predictorName <- res$intermediate$variables_namesOnly[2];
         moderatorName <- res$intermediate$variables_namesOnly[3];
 
-        predictorMean <- mean(res$intermediate$dat.raw[, predictorName],
+        predictorMean <- mean(res$intermediate$dat.plot[, predictorName],
                               na.rm=TRUE);
-        predictorSD <- stats::sd(res$intermediate$dat.raw[, predictorName],
+        predictorSD <- stats::sd(res$intermediate$dat.plot[, predictorName],
                           na.rm=TRUE);
         # loPredictorValue <- predictorMean - predictorSD;
         # hiPredictorValue <- predictorMean + predictorSD;
-        loPredictorValue <- min(res$intermediate$dat.raw[, predictorName],
+        loPredictorValue <- min(res$intermediate$dat.plot[, predictorName],
                                 na.rm=TRUE);
-        hiPredictorValue <- max(res$intermediate$dat.raw[, predictorName],
+        hiPredictorValue <- max(res$intermediate$dat.plot[, predictorName],
                                 na.rm=TRUE);
 
-        moderatorMean <- mean(res$intermediate$dat.raw[, moderatorName],
+        moderatorMean <- mean(res$intermediate$dat.plot[, moderatorName],
                               na.rm=TRUE);
-        moderatorSD <- stats::sd(res$intermediate$dat.raw[, moderatorName],
+        moderatorSD <- stats::sd(res$intermediate$dat.plot[, moderatorName],
                                  na.rm=TRUE);
         loModeratorValue <- moderatorMean - moderatorSD;
         hiModeratorValue <- moderatorMean + moderatorSD;
@@ -263,12 +297,15 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
                                    modVal = c("Low", "High"));
         names(moderatorDat)[5] <- res$intermediate$variables_namesOnly[3];
 
+        res$intermediate$moderatorDat <- moderatorDat;
+
         res$output$plot <-
-          ggplot2::ggplot(res$intermediate$dat.raw,
+          ggplot2::ggplot(res$intermediate$dat.plot,
                           ggplot2::aes_string(y=res$intermediate$variables_namesOnly[1],
                                               x=res$intermediate$variables_namesOnly[2])) +
-          ggplot2::geom_point(alpha = pointAlpha) +
-          ggplot2::geom_smooth(method='lm') +
+          ggplot2::geom_point(alpha = pointAlpha,
+                              position = ggplot2::position_jitter()) +
+          ggplot2::geom_smooth(method='lm', formula = "y ~ x") +
           ggplot2::theme_bw() +
           ggplot2::geom_segment(data = moderatorDat,
                                 ggplot2::aes_string(x = 'x', xend = 'xend',
@@ -278,12 +315,12 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
                                 size=1) +
           ggplot2::scale_color_viridis_d();
 
-      } else if ((is.numeric(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[2]]) &&
-                 (is.factor(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[3]]))) ||
-                 (is.numeric(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[3]]) &&
-                 (is.factor(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[2]])))) {
-        ### One of the predictors is a factor, so we jsut plot lines for each value
-        if (is.numeric(res$intermediate$dat.raw[, res$intermediate$variables_namesOnly[2]])) {
+      } else if ((is.numeric(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[2]]) &&
+                 (is.factor(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[3]]))) ||
+                 (is.numeric(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[3]]) &&
+                 (is.factor(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[2]])))) {
+        ### One of the predictors is a factor, so we just plot lines for each value
+        if (is.numeric(res$intermediate$dat.plot[, res$intermediate$variables_namesOnly[2]])) {
           predictor <- res$intermediate$variables_namesOnly[2];
           moderator <- res$intermediate$variables_namesOnly[3];
         } else {
@@ -291,23 +328,27 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
           moderator <- res$intermediate$variables_namesOnly[2];
         }
         res$output$plot <-
-          ggplot2::ggplot(res$intermediate$dat.raw,
+          ggplot2::ggplot(res$intermediate$dat.plot,
                           ggplot2::aes_string(y=res$intermediate$variables_namesOnly[1],
                                               x=predictor)) +
-          ggplot2::geom_point(alpha = pointAlpha) +
-          ggplot2::geom_smooth(method='lm') +
+          ggplot2::geom_point(alpha = pointAlpha,
+                              position = ggplot2::position_jitter()) +
+          ggplot2::geom_smooth(method='lm', formula = y ~ x) +
           ggplot2::theme_bw() +
           ggplot2::geom_smooth(ggplot2::aes_string(y=res$intermediate$variables_namesOnly[1],
                                                    x=predictor,
                                                    group=moderator,
                                                    color=moderator),
                                method="lm",
+                               formula= y ~ x,
                                se = FALSE) +
           ggplot2::scale_color_viridis_d();
       }
     } else {
       warning("You requested a plot, but for now plots are ",
-              "only available for regression analyses with one predictor.");
+              "only available for regression analyses with one predictor or ",
+              "with two predictors and an interaction term (i.e. three ",
+              "predictors in total).");
     }
   }
 
@@ -316,125 +357,201 @@ regr <- function(formula, data=NULL, conf.level=.95, digits=2,
   ### compareCoefficients=FALSE, p.adjust="fdr" to enable user to
   ### request & correct this.
 
-  class(res) <- 'regr';
+  class(res) <- 'rosettaRegr';
   return(res);
 
 }
 
-#' @method print regr
-#' @rdname regr
+###-----------------------------------------------------------------------------
+
+#' @rdname rosettaRegr
 #' @export
-print.regr <- function(x, digits=x$input$digits,
-                       pvalueDigits=x$input$pvalueDigits, ...) {
+rosettaRegr_partial <- function(x,
+                                digits = x$input$digits,
+                                pvalueDigits=x$input$pvalueDigits,
+                                headingLevel = x$input$headingLevel,
+                                echoPartial = FALSE,
+                                partialFile = NULL,
+                                quiet=TRUE,
+                                ...) {
 
-  cat(paste0("Regression analysis for formula: ",
-             x$intermediate$formula.as.character, "\n\n",
-             "Significance test of the entire model (all predictors together):\n",
-             "  Multiple R-squared: [",
-             round(x$output$rsq.ci[1], digits), ", ",
-             round(x$output$rsq.ci[2], digits),
-             "] (point estimate = ",
-             round(x$intermediate$summary.raw$r.squared, digits),
-             ", adjusted = ",
-             round(x$intermediate$summary.raw$adj.r.squared, digits), ")",
-             ifelse(x$input$ci.method.note, "*\n", "\n"),
-             "  Test for significance: F[",
-             x$intermediate$summary.raw$fstatistic[2], ", ",
-             x$intermediate$summary.raw$fstatistic[3], "] = ",
-             round(x$intermediate$summary.raw$fstatistic[1], digits),
-             ", ", ufs::formatPvalue(stats::pf(x$intermediate$summary.raw$fstatistic[1],
-                                               x$intermediate$summary.raw$fstatistic[2],
-                                               x$intermediate$summary.raw$fstatistic[3],
-                                               lower.tail=FALSE), digits=pvalueDigits), "\n"));
-  if ("raw" %in% x$input$coefficients) {
-    cat("\nRaw regression coefficients (unstandardized beta values, called 'B' in SPSS):\n\n");
-    tmpDat <- round(x$output$coef.raw[, 1:5], digits);
-    tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
-    tmpDat[[2]] <- NULL;
-    names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-    tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p,
-                                  digits=pvalueDigits,
-                                  includeP=FALSE);
-    print(tmpDat, ...);
-  }
-  if ("scaled" %in% x$input$coefficients) {
-    cat("\nScaled regression coefficients (standardized beta values, called 'Beta' in SPSS):\n\n");
-    tmpDat <- round(x$output$coef.scaled[, 1:5], digits);
-    tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
-    tmpDat[[2]] <- NULL;
-    names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-    tmpDat$p <- ufs::formatPvalue(x$output$coef.scaled$p,
-                                  digits=pvalueDigits,
-                                  includeP=FALSE);
-    print(tmpDat, ...);
-  }
-
-  if (x$input$collinearity && (!is.null(x$intermediate$vif.raw))) {
-    cat0("\nCollinearity diagnostics:\n\n");
-    if (is.vector(x$intermediate$vif.raw)) {
-      cat0("  For the raw regression coefficients:\n\n");
-      collinearityDat <- data.frame(VIF = x$intermediate$vif.raw,
-                                    Tolerance = x$intermediate$tolerance.raw);
-      row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
-      print(collinearityDat);
-      cat0("\n  For the standardized regression coefficients:\n\n");
-      collinearityDat <- data.frame(VIF = x$intermediate$vif.scaled,
-                                    Tolerance = x$intermediate$tolerance.scaled);
-      row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
-      print(collinearityDat);
-    }
-  }
-
-  ciMsg <- "\n* Note that the confidence interval for R^2 is based on ";
-  if (x$input$ci.method[1] == 'r.con') {
-    ciMsg <- paste0(ciMsg,
-                    "the confidence interval for the Pearson Correlation of ",
-                    "the multiple correlation using r.con from the 'psych' ",
-                    "package because that was specified using the 'ci.method' ",
-                    "argument.");
-  } else if (x$input$ci.method[1] == 'olkinfinn') {
-    ciMsg <- paste0(ciMsg,
-                    "the formula reported by Olkin and Finn (1995) in their Correlation ",
-                    "Redux paper, because this was specified using the 'ci.method' ",
-                    "argument. This may not work well for very low values. Set the ",
-                    "argument to 'widest' to also compute the confidence interval ",
-                    "of the multiple correlation using the r.con function from ",
-                    "the 'psych' package and selecting the widest interval.");
-  } else if (identical(x$output$rsq.ci, x$output$rsq.ci.r.con)) {
-    ciMsg <- paste0(ciMsg,
-                    "the confidence interval for the Pearson Correlation of ",
-                    "the multiple correlation using r.con from the 'psych' ",
-                    "package because that was the widest interval, which ",
-                    "should be used because the 'ci.method' was set to 'widest'.");
-  } else if (identical(x$output$rsq.ci, x$output$rsq.ci.olkinfinn)) {
-    ciMsg <- paste0(ciMsg,
-                    "the formula reported by Olkin and Finn (1995) in their Correlation ",
-                    "Redux paper, because this was the widest interval, which ",
-                    "should be used because the 'ci.method' was set to 'widest'.");
+  ### Get filename
+  if (!is.null(partialFile) && file.exists(partialFile)) {
+    rmdPartialFilename <-
+      partialFile;
   } else {
-    ciMsg <- paste0(ciMsg,
-                    " -- I don't know actually, something appears to have gone wrong. ",
-                    "The 'ci.method' argument was set to ", ufs::vecTxtQ(x$input$ci.method),
-                    ".");
+    rmdPartialFilename <-
+      system.file("partials", "_rosettaRegr_partial.Rmd",
+                  package="rosetta");
   }
 
-  if (x$input$ci.method.note) {
-    cat("\n");
-    cat(strwrap(ciMsg), sep="\n");
-  }
-
-  if (!is.null(x$output$plot)) {
-    print(x$output$plot);
-  }
-  invisible();
+  rmdpartials::partial(rmdPartialFilename);
 
 }
 
-### Function to smoothly pander output from regr function in userfriendlyscience
-#' @method pander regr
-#' @rdname regr
+###-----------------------------------------------------------------------------
+
+#' @rdname rosettaRegr
+#' @method knit_print rosettaRegr
+#' @importFrom knitr knit_print
 #' @export
-pander.regr <- function (x, digits = x$input$digits, pvalueDigits = x$input$pvalueDigits, ...) {
+knit_print.rosettaRegr <- function(x,
+                                   digits = x$input$digits,
+                                   headingLevel = x$input$headingLevel,
+                                   pvalueDigits=x$input$pvalueDigits,
+                                   echoPartial = FALSE,
+                                   partialFile = NULL,
+                                   quiet=TRUE,
+                                   ...) {
+  rosettaRegr_partial(x = x,
+                      headingLevel = headingLevel,
+                      quiet = quiet,
+                      echoPartial = echoPartial,
+                      partialFile = partialFile,
+                      digits = digits,
+                      pvalueDigits = pvalueDigits,
+                      ...);
+}
+
+###-----------------------------------------------------------------------------
+
+#' @method print rosettaRegr
+#' @rdname rosettaRegr
+#' @export
+print.rosettaRegr <- function(x, digits=x$input$digits,
+                              pvalueDigits=x$input$pvalueDigits,
+                              headingLevel = x$input$headingLevel,
+                              forceKnitrOutput = FALSE,
+                              ...) {
+
+
+  if (isTRUE(getOption('knitr.in.progress')) || forceKnitrOutput) {
+
+    rosettaRegr_partial(x = x,
+                        digits = digits,
+                        headingLevel = headingLevel,
+                        ...);
+
+  } else {
+
+    cat(paste0("Regression analysis\n  Formula: ",
+               x$intermediate$formula.as.character, "\n",
+               "  Sample size: ",
+               sum(stats::complete.cases(x$intermediate$dat.raw)),
+               "\n\n",
+               "Significance test of the entire model (all predictors together):\n",
+               "  Multiple R-squared: ",
+               ufs::formatCI(x$output$rsq.ci, noZero=TRUE, digits=digits),
+               " (point estimate = ",
+               round(x$intermediate$summary.raw$r.squared, digits),
+               ", adjusted = ",
+               round(x$intermediate$summary.raw$adj.r.squared, digits), ")",
+               ifelse(x$input$ci.method.note, "*\n", "\n"),
+               "  Test for significance: F[",
+               x$intermediate$summary.raw$fstatistic[2], ", ",
+               x$intermediate$summary.raw$fstatistic[3], "] = ",
+               round(x$intermediate$summary.raw$fstatistic[1], digits),
+               ", ", ufs::formatPvalue(stats::pf(x$intermediate$summary.raw$fstatistic[1],
+                                                 x$intermediate$summary.raw$fstatistic[2],
+                                                 x$intermediate$summary.raw$fstatistic[3],
+                                                 lower.tail=FALSE), digits=pvalueDigits), "\n"));
+    if ("raw" %in% x$input$coefficients) {
+      cat("\nRaw regression coefficients (unstandardized beta values, called 'B' in SPSS):\n\n");
+      tmpDat <- round(x$output$coef.raw[, 1:5], digits);
+      tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
+      tmpDat[[2]] <- NULL;
+      names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
+      tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p,
+                                    digits=pvalueDigits,
+                                    includeP=FALSE);
+      print(tmpDat, ...);
+    }
+    if ("scaled" %in% x$input$coefficients) {
+      cat("\nScaled regression coefficients (standardized beta values, called 'Beta' in SPSS):\n\n");
+      tmpDat <- round(x$output$coef.scaled[, 1:5], digits);
+      tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
+      tmpDat[[2]] <- NULL;
+      names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
+      tmpDat$p <- ufs::formatPvalue(x$output$coef.scaled$p,
+                                    digits=pvalueDigits,
+                                    includeP=FALSE);
+      print(tmpDat, ...);
+    }
+
+    if (x$input$collinearity && (!is.null(x$intermediate$vif.raw))) {
+      cat0("\nCollinearity diagnostics:\n\n");
+      if (is.vector(x$intermediate$vif.raw)) {
+        if ("raw" %in% x$input$coefficients) {
+          cat0("  For the raw regression coefficients:\n\n");
+          collinearityDat <- data.frame(VIF = x$intermediate$vif.raw,
+                                        Tolerance = x$intermediate$tolerance.raw);
+          row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
+          print(collinearityDat);
+        }
+      }
+      if (is.vector(x$intermediate$vif.scaled)) {
+        if ("scaled" %in% x$input$coefficients) {
+          cat0("\n  For the standardized regression coefficients:\n\n");
+          collinearityDat <- data.frame(VIF = x$intermediate$vif.scaled,
+                                        Tolerance = x$intermediate$tolerance.scaled);
+          row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
+          print(collinearityDat);
+        }
+      }
+    }
+
+    ciMsg <- "\n* Note that the confidence interval for R^2 is based on ";
+    if (x$input$ci.method[1] == 'r.con') {
+      ciMsg <- paste0(ciMsg,
+                      "the confidence interval for the Pearson Correlation of ",
+                      "the multiple correlation using r.con from the 'psych' ",
+                      "package because that was specified using the 'ci.method' ",
+                      "argument.");
+    } else if (x$input$ci.method[1] == 'olkinfinn') {
+      ciMsg <- paste0(ciMsg,
+                      "the formula reported by Olkin and Finn (1995) in their Correlation ",
+                      "Redux paper, because this was specified using the 'ci.method' ",
+                      "argument. This may not work well for very low values. Set the ",
+                      "argument to 'widest' to also compute the confidence interval ",
+                      "of the multiple correlation using the r.con function from ",
+                      "the 'psych' package and selecting the widest interval.");
+    } else if (identical(x$output$rsq.ci, x$output$rsq.ci.r.con)) {
+      ciMsg <- paste0(ciMsg,
+                      "the confidence interval for the Pearson Correlation of ",
+                      "the multiple correlation using r.con from the 'psych' ",
+                      "package because that was the widest interval, which ",
+                      "should be used because the 'ci.method' was set to 'widest'.");
+    } else if (identical(x$output$rsq.ci, x$output$rsq.ci.olkinfinn)) {
+      ciMsg <- paste0(ciMsg,
+                      "the formula reported by Olkin and Finn (1995) in their Correlation ",
+                      "Redux paper, because this was the widest interval, which ",
+                      "should be used because the 'ci.method' was set to 'widest'.");
+    } else {
+      ciMsg <- paste0(ciMsg,
+                      " -- I don't know actually, something appears to have gone wrong. ",
+                      "The 'ci.method' argument was set to ", ufs::vecTxtQ(x$input$ci.method),
+                      ".");
+    }
+
+    if (x$input$ci.method.note) {
+      cat("\n");
+      cat(strwrap(ciMsg), sep="\n");
+    }
+
+    if (!is.null(x$output$plot)) {
+      print(x$output$plot);
+    }
+    invisible();
+  }
+}
+
+###-----------------------------------------------------------------------------
+
+### Function to smoothly pander output from regr function in userfriendlyscience
+#' @method pander rosettaRegr
+#' @rdname rosettaRegr
+#' @export
+pander.rosettaRegr <- function (x, digits = x$input$digits, pvalueDigits = x$input$pvalueDigits, ...) {
   pander::pandoc.p(paste0("\n\n#### Regression analysis for formula: ", x$intermediate$formula.as.character));
   pander::pandoc.p("\n\n##### Significance test of the entire model (all predictors together):\n\n");
   pander::pandoc.p(paste0("Multiple R-squared: [", round(x$output$rsq.ci[1],

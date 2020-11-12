@@ -3,8 +3,6 @@
 #' This function is meant as a userfriendly wrapper to approximate the way
 #' logistic regression is done in SPSS.
 #'
-#' This function
-#'
 #' @param formula The formula, specified in the same way as for
 #' [stats::glm()] (which is used for the actual analysis).
 #' @param data Optionally, a dataset containing the variables in the formula
@@ -39,8 +37,18 @@
 #' the length of the shortest interval between two successive points in the
 #' predictor data series (found using [ufs::findShortestInterval()].
 #' @param theme The theme used to display the plot.
-#' @param x The object to print.
-#' @param ... Any additional arguments are passed to the default print method.
+#' @param headingLevel The number of hashes to print in front of the headings
+#' @param x The object to print (i.e. as produced by `rosetta::logRegr`).
+#' @param forceKnitrOutput Force knitr output.
+#' @param quiet Passed on to [knitr::knit()] whether it should b
+#'  chatty (`FALSE`) or quiet (`TRUE`).
+#' @param echoPartial Whether to show the executed code in the R Markdown
+#' partial (`TRUE`) or not (`FALSE`).
+#' @param partialFile This can be used to specify a custom partial file. The
+#' file will have object `x` available.
+#' @param \dots Any additional arguments are passed to the default print method
+#' by the print method, and to [rmdpartials::partial()] when knitting an
+#' RMarkdown partial.
 #'
 #' @return Mainly, this function prints its results, but it also returns them
 #' in an object containing three lists: \item{input}{The arguments specified
@@ -56,17 +64,38 @@
 #' for linear regression and analysis of variance and [stats::glm()] for the
 #' regular interface for logistic regression.
 #' @keywords htest models regression nonlinear hplot
-#' @rdname logRegr
+#' @rdname rosettaLogRegr
 #' @examples
 #'
 #' ### Simplest way to call logRegr
-#' logRegr(data=mtcars, formula = vs ~ mpg);
+#' rosetta::logRegr(data=mtcars, formula = vs ~ mpg);
 #'
 #' ### Also ordering a plot
-#' logRegr(data=mtcars, formula = vs ~ mpg, plot=TRUE);
+#' rosetta::logRegr(
+#'   data=mtcars,
+#'   formula = vs ~ mpg,
+#'   plot=TRUE
+#' );
 #'
 #' ### Only use five bins
-#' logRegr(data=mtcars, formula = vs ~ mpg, plot=TRUE, binObservedMeans=5);
+#' rosetta::logRegr(
+#'   data=mtcars,
+#'   formula = vs ~ mpg,
+#'   plot=TRUE,
+#'   binObservedMeans=5
+#' );
+#'
+#' \dontrun{
+#' ### Mimic output that would be obtained
+#' ### when calling from an R Markdown file
+#' rosetta::rosettaLogRegr_partial(
+#'   rosetta::logRegr(
+#'     data=mtcars,
+#'     formula = vs ~ mpg,
+#'     plot=TRUE
+#'   )
+#' );
+#' }
 #'
 #' @export logRegr
 logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
@@ -86,7 +115,8 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
                     observedMeansSize = 2,
                     observedMeansWidth = NULL,
                     observedMeansAlpha = .5,
-                    theme=ggplot2::theme_bw()) {
+                    theme=ggplot2::theme_bw(),
+                    headingLevel = 3) {
 
   ### Generate object to store input, intermediate outcomes, and results
   res <- list(input = as.list(environment()),
@@ -137,11 +167,41 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
   res$intermediate$formula <- formula(res$intermediate$formula.as.character,
                                       env = environment());
 
+  highestValue <-
+    names(sort(table(res$intermediate$dat.raw[, 1]), decreasing=TRUE))[1];
+  lowestValue <-
+    names(sort(table(res$intermediate$dat.raw[, 1]), decreasing=TRUE))[2];
+
+  res$intermediate$levelNames <-
+    levelNames <-
+    c(lowestValue,
+    highestValue);
+
+  res$intermediate$dat.raw[, 1] <-
+    ifelse(
+      res$intermediate$dat.raw[, 1] == lowestValue,
+      0,
+      ifelse(
+        res$intermediate$dat.raw[, 1] == highestValue,
+        1,
+        NA
+      )
+    );
+
+  res$intermediate$dat.raw <-
+    res$intermediate$dat.raw[
+      stats::complete.cases(
+        res$intermediate$dat.raw
+      ),
+    ];
+
   ### Run and store lm objects
-  res$intermediate$glm <-
-    stats::glm(formula=res$intermediate$formula,
-               data=res$intermediate$dat.raw,
-               family=stats::binomial(link='logit'));
+  suppressMessages(
+    res$intermediate$glm <-
+      stats::glm(formula=res$intermediate$formula,
+                 data=res$intermediate$dat.raw,
+                 family=stats::binomial(link='logit'))
+  );
 
   ### Test difference from intercept-only model
   ###   (written by Ron Pat-El)
@@ -164,10 +224,11 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
     (1 - exp(-(res$intermediate$glm$null.deviance /
                length(res$intermediate$glm$fitted.values))));
 
-
   ### Run confint on lm object
-  res$intermediate$confint <-
-    stats::confint(res$intermediate$glm, level=conf.level);
+  suppressMessages(
+    res$intermediate$confint <-
+      stats::confint(res$intermediate$glm, level=conf.level)
+  );
 
   ### Run lm.influence on lm object
   res$intermediate$influence <-
@@ -212,27 +273,45 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
   res$output$crossTab.model <- table(res$intermediate$dat.raw[, 1],
                                      res$intermediate$predictedY.dichotomous,
                                      dnn=c("Observed", "Predicted"));
+  row.names(res$output$crossTab.model) <-
+    levelNames;
+  colnames(res$output$crossTab.model) <-
+    levelNames;
 
   ### Best predictions on the basis of the null model is either 0 or 1
-  if (mean(res$intermediate$dat.raw[, 1], na.rm=TRUE) < .5) {
+  if (
+    (
+      table(res$intermediate$dat.raw[, 1])[1] /
+      sum(table(res$intermediate$dat.raw[, 1]))
+    ) < .5) {
     res$intermediate$predictedY.null <- rep(0, nrow(res$intermediate$dat.raw));
   } else {
     res$intermediate$predictedY.null <- rep(1, nrow(res$intermediate$dat.raw));
   }
 
   ### Build crosstables
-  res$output$crossTab.model <- table(res$intermediate$dat.raw[, 1],
-                                     res$intermediate$predictedY.dichotomous,
-                                     dnn=c("Observed", "Predicted"));
+  # res$output$crossTab.model <- table(res$intermediate$dat.raw[, 1],
+  #                                    res$intermediate$predictedY.dichotomous,
+  #                                    dnn=c("Observed", "Predicted"));
   res$output$crossTab.null <- table(res$intermediate$dat.raw[, 1],
                                     res$intermediate$predictedY.null,
                                     dnn=c("Observed", "Predicted"));
+  row.names(res$output$crossTab.null) <-
+    levelNames;
+
+  if (res$intermediate$predictedY.null[1] == 0) {
+    colnames(res$output$crossTab.null) <-
+      levelNames[1];
+  } else {
+    colnames(res$output$crossTab.null) <-
+      levelNames[2];
+  }
 
   ### Compute the proportion of correct predictions for the null model
   ### and the real model
   res$output$proportionCorrect.model <- sum(diag(res$output$crossTab.model)) /
     sum(res$output$crossTab.model);
-  res$output$proportionCorrect.null <- sum(diag(res$output$crossTab.null)) /
+  res$output$proportionCorrect.null <- max(res$output$crossTab.null) /
     sum(res$output$crossTab.null);
 
   if (plot) {
@@ -310,6 +389,9 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
 
       if (is.null(observedMeansWidth)) {
         observedMeansWidth <- (diff(range(res$intermediate$dat.raw[, 1])));
+        if (observedMeansWidth < (diff(range(res$intermediate$dat.raw[, 2])) / 20)) {
+          observedMeansWidth <- (diff(range(res$intermediate$dat.raw[, 2])) / 20);
+        }
       }
 
       res$intermediate$plotDatObservedMean$minX <-
@@ -336,7 +418,8 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
           fill = predictionColor,
           alpha = predictionAlpha
         ) +
-        ggplot2::geom_line(color = predictionColor, size = predictionSize) +
+        ggplot2::geom_line(color = predictionColor,
+                           size = predictionSize) +
         ggplot2::geom_jitter(
           data = res$intermediate$plotDatObserved,
           ggplot2::aes_string(
@@ -361,6 +444,7 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
           size = observedMeansSize,
           alpha = observedMeansAlpha
         ) +
+        ggplot2::labs(y = "Predicted probability") +
         theme
 
       # res$output$plot <- ggplot(res$intermediate$dat.raw,
@@ -374,71 +458,141 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
     }
   }
 
-  class(res) <- 'logRegr';
+  class(res) <- 'rosettaLogRegr';
   return(res);
 
 }
 
-#' @method print logRegr
-#' @rdname logRegr
+###-----------------------------------------------------------------------------
+
+#' @rdname rosettaLogRegr
 #' @export
-print.logRegr <- function(x, digits=x$input$digits,
-                          pvalueDigits=x$input$pvalueDigits, ...) {
+rosettaLogRegr_partial <- function(x,
+                                   digits = x$input$digits,
+                                   pvalueDigits=x$input$pvalueDigits,
+                                   headingLevel = x$input$headingLevel,
+                                   echoPartial = FALSE,
+                                   partialFile = NULL,
+                                   quiet=TRUE,
+                                   ...) {
 
-  cat0("Logistic regression analysis for formula: ",
-       x$intermediate$formula.as.character, "\n\n",
-       "Significance test of the entire model (all predictors together):\n",
-       "  Cox & Snell R-squared: ",
-       round(x$intermediate$CoxSnellRsq, digits),
-       ",\n",
-       "  Nagelkerke R-squared: ",
-       round(x$intermediate$NagelkerkeRsq, digits),
-       "\n",
-       "  Test for significance: ChiSq[",
-       x$intermediate$chiDf,
-       "] = ",
-       round(x$intermediate$modelChi, digits),
-       ", ",
-       ufs::formatPvalue(x$intermediate$deltaChisq, digits=pvalueDigits), "\n");
-
-  if (x$input$crossTabs) {
-    cat0("\nPredictions by the null model (",
-         round(100 * x$output$proportionCorrect.null, digits),
-         "% correct):\n\n");
-    print(x$output$crossTab.null);
-
-    cat0("\nPredictions by the tested model (",
-         round(100 * x$output$proportionCorrect.model, digits),
-         "% correct):\n\n");
-    print(x$output$crossTab.model);
+  ### Get filename
+  if (!is.null(partialFile) && file.exists(partialFile)) {
+    rmdPartialFilename <-
+      partialFile;
+  } else {
+    rmdPartialFilename <-
+      system.file("partials", "_rosettaLogRegr_partial.Rmd",
+                  package="rosetta");
   }
 
-  cat("\nRaw regression coefficients (log odds values, called 'B' in SPSS):\n\n");
-  tmpDat <- round(x$output$coef[, 1:5], digits);
-  tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
-  tmpDat[[2]] <- NULL;
-  names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-  tmpDat$p <- ufs::formatPvalue(x$output$coef$p,
-                                digits=pvalueDigits,
-                                includeP=FALSE);
-  print(tmpDat, ...);
+  rmdpartials::partial(rmdPartialFilename);
 
-  if (x$input$collinearity && (!is.null(x$intermediate$vif))) {
-    cat0("\nCollinearity diagnostics:\n\n");
-    if (is.vector(x$intermediate$vif)) {
-      collinearityDat <- data.frame(VIF = x$intermediate$vif,
-                                    Tolerance = x$intermediate$tolerance);
-      row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif));
-      print(collinearityDat);
+}
+
+###-----------------------------------------------------------------------------
+
+#' @rdname rosettaLogRegr
+#' @method knit_print rosettaLogRegr
+#' @importFrom knitr knit_print
+#' @export
+knit_print.rosettaLogRegr <- function(x,
+                                      digits = x$input$digits,
+                                      headingLevel = x$input$headingLevel,
+                                      pvalueDigits=x$input$pvalueDigits,
+                                      echoPartial = FALSE,
+                                      partialFile = NULL,
+                                      quiet=TRUE,
+                                      ...) {
+  rosettaLogRegr_partial(x = x,
+                         headingLevel = headingLevel,
+                         quiet = quiet,
+                         echoPartial = echoPartial,
+                         partialFile = partialFile,
+                         digits = digits,
+                         pvalueDigits = pvalueDigits,
+                         ...);
+}
+
+###-----------------------------------------------------------------------------
+
+#' @method print rosettaLogRegr
+#' @rdname rosettaLogRegr
+#' @export
+print.rosettaLogRegr <- function(x, digits=x$input$digits,
+                                 pvalueDigits=x$input$pvalueDigits,
+                                 headingLevel = x$input$headingLevel,
+                                 forceKnitrOutput = FALSE,
+                                 ...) {
+
+  if (isTRUE(getOption('knitr.in.progress')) || forceKnitrOutput) {
+
+    rosettaLogRegr_partial(x = x,
+                           digits = digits,
+                           headingLevel = headingLevel,
+                           ...);
+
+  } else {
+
+    cat0("Logistic regression analysis\n  Formula: ",
+         x$intermediate$formula.as.character, "\n",
+         "  Sample size: ",
+         sum(stats::complete.cases(x$intermediate$dat.raw)), "\n",
+         "  Predicting: ",
+         x$intermediate$levelNames[2],
+         "\n\n",
+         "Significance test of the entire model (all predictors together):\n",
+         "  Cox & Snell R-squared: ",
+         ufs::formatR(x$intermediate$CoxSnellRsq, digits),
+         ",\n",
+         "  Nagelkerke R-squared: ",
+         ufs::formatR(x$intermediate$NagelkerkeRsq, digits),
+         "\n",
+         "  Test for significance: ChiSq[",
+         x$intermediate$chiDf,
+         "] = ",
+         round(x$intermediate$modelChi, digits),
+         ", ",
+         ufs::formatPvalue(x$intermediate$deltaChisq, digits=pvalueDigits), "\n");
+
+    if (x$input$crossTabs) {
+      cat0("\nPredictions by the null model (",
+           round(100 * x$output$proportionCorrect.null, digits),
+           "% correct):\n\n");
+      print(x$output$crossTab.null);
+
+      cat0("\nPredictions by the tested model (",
+           round(100 * x$output$proportionCorrect.model, digits),
+           "% correct):\n\n");
+      print(x$output$crossTab.model);
     }
+
+    cat("\nRaw regression coefficients (log odds values, called 'B' in SPSS):\n\n");
+    tmpDat <- round(x$output$coef[, 1:5], digits);
+    tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
+    tmpDat[[2]] <- NULL;
+    names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
+    tmpDat$p <- ufs::formatPvalue(x$output$coef$p,
+                                  digits=pvalueDigits,
+                                  includeP=FALSE);
+    print(tmpDat, ...);
+
+    if (x$input$collinearity && (!is.null(x$intermediate$vif))) {
+      cat0("\nCollinearity diagnostics:\n\n");
+      if (is.vector(x$intermediate$vif)) {
+        collinearityDat <- data.frame(VIF = x$intermediate$vif,
+                                      Tolerance = x$intermediate$tolerance);
+        row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif));
+        print(collinearityDat);
+      }
+    }
+
+    if (!is.null(x$output$plot)) {
+      print(x$output$plot);
+    }
+
+    cat("\n");
+
+    invisible();
   }
-
-  if (!is.null(x$output$plot)) {
-    print(x$output$plot);
-  }
-
-  cat("\n");
-
-  invisible();
-
 }

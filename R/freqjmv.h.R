@@ -29,7 +29,7 @@ freqjmvOptions <- if (requireNamespace('jmvcore')) R6::R6Class(
 freqjmvResults <- if (requireNamespace('jmvcore')) R6::R6Class(
     inherit = jmvcore::Group,
     active = list(
-        text = function() private$.items[["text"]]),
+        table = function() private$.items[["table"]]),
     private = list(),
     public=list(
         initialize=function(options) {
@@ -37,10 +37,33 @@ freqjmvResults <- if (requireNamespace('jmvcore')) R6::R6Class(
                 options=options,
                 name="",
                 title="Frequencies")
-            self$add(jmvcore::Preformatted$new(
+            self$add(jmvcore::Table$new(
                 options=options,
-                name="text",
-                title="Frequencies"))}))
+                name="table",
+                title="Frequencies",
+                rows=4,
+                columns=list(
+                    list(
+                        `name`="value", 
+                        `title`="", 
+                        `type`="text", 
+                        `content`="($key)"),
+                    list(
+                        `name`="freq", 
+                        `title`="Frequencies", 
+                        `type`="integer"),
+                    list(
+                        `name`="percTotal", 
+                        `title`="Percentage of total", 
+                        `type`="number"),
+                    list(
+                        `name`="percValid", 
+                        `title`="Percentage of valid cases", 
+                        `type`="number"),
+                    list(
+                        `name`="cumulative", 
+                        `title`="Cumulative", 
+                        `type`="number"))))}))
 
 freqjmvBase <- if (requireNamespace('jmvcore')) R6::R6Class(
     "freqjmvBase",
@@ -58,7 +81,8 @@ freqjmvBase <- if (requireNamespace('jmvcore')) R6::R6Class(
                 analysisId = analysisId,
                 revision = revision,
                 pause = NULL,
-                completeWhenFilled = FALSE)
+                completeWhenFilled = FALSE,
+                requiresMissings = FALSE)
         }))
 
 #' Frequencies
@@ -68,8 +92,14 @@ freqjmvBase <- if (requireNamespace('jmvcore')) R6::R6Class(
 #' @param vector .
 #' @return A results object containing:
 #' \tabular{llllll}{
-#'   \code{results$text} \tab \tab \tab \tab \tab a preformatted \cr
+#'   \code{results$table} \tab \tab \tab \tab \tab a table \cr
 #' }
+#'
+#' Tables can be converted to data frames with \code{asDF} or \code{\link{as.data.frame}}. For example:
+#'
+#' \code{results$table$asDF}
+#'
+#' \code{as.data.frame(results$table)}
 #'
 #' @export
 freqjmv <- function(

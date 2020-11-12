@@ -4,7 +4,8 @@
 \name{cpbExample}
 \alias{cpbExample}
 \title{A test dataset}
-\format{A data frame with 320 rows and 8 variables:
+\format{
+A data frame with 320 rows and 8 variables:
 \describe{
 \item{gender}{gender participant}
 \item{age}{age participant}
@@ -14,7 +15,8 @@
 \item{CPB}{contr-productive behaviour }
 \item{insecure}{insecure about job continuation }
 \item{norms}{personal norms about CPB}
-}}
+}
+}
 \usage{
 cpbExample
 }

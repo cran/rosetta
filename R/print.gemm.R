@@ -12,21 +12,22 @@ print.gemm <- function(x, ..., digits=2, silence = FALSE) {
 
   options(digits = digits)
   res <- list()
+  ns <- "\n"
+  if(isTRUE(getOption('knitr.in.progress'))) ns <- "\n\n"
 
   if (!silence) {
-cat("
-The dependent variable is:     ", (x$input$yvar), "
-The predictor variable is:     ", (x$input$xvar), "
-The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
+cat("The dependent variable is:     ", (x$input$yvar), ns)
+cat("The predictor variable is:     ", (x$input$xvar), ns)
+cat("The model contains", length(x$input$mvars),"mediators:",x$input$mvars,ns)
 
-  if(length(x$input$xmmod) > 0) {cat("The moderators for the x-m path(s):",x$input$xmmod,"\n")
-  } else {cat("No moderators for the x-m path(s)","\n")}
-  if(length(x$input$mymod) > 0) {cat("The moderators for the m-y path(s):",x$input$mymod,"\n")
-  } else {cat("No moderators for the m-y path(s)","\n")}
-  if(length(x$input$cmvars) > 0) {cat("The covariates for the mediators:",x$input$cmvars, "\n")
-  } else {cat("No covariates for the mediators","\n")}
-  if(length(x$input$cyvars) > 0) {cat("The covariates for the dependent:",x$input$cyvars, "\n")
-  } else {cat("No covariates for the dependent variable","\n")}
+  if(length(x$input$xmmod) > 0) {cat("The moderators for the x-m path(s):",x$input$xmmod,ns)
+  } else {cat("No moderators for the x-m path(s)",ns)}
+  if(length(x$input$mymod) > 0) {cat("The moderators for the m-y path(s):",x$input$mymod,ns)
+  } else {cat("No moderators for the m-y path(s)",ns)}
+  if(length(x$input$cmvars) > 0) {cat("The covariates for the mediators:",x$input$cmvars, ns)
+  } else {cat("No covariates for the mediators",ns)}
+  if(length(x$input$cyvars) > 0) {cat("The covariates for the dependent:",x$input$cyvars, ns)
+  } else {cat("No covariates for the dependent variable",ns)}
 
   }
 
@@ -39,7 +40,15 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
      cat("\n\n")
      cat("Explained variance (R-square) of the mediators and dependent variable:\n");
-     pander::pander(table1, justify = c("left", "right"))
+     if(isTRUE(getOption('knitr.in.progress'))) {
+       a <- knitr::kable(table1, format = "html", padding = 2, align = c("l", "r"),
+                         caption = " ")
+       a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+       print(a)
+     } else {
+       pander::pander(table1, justify = c("left", "right"))
+     }
+
   }
 
   lmout <- x$output$parameterEstimates.total
@@ -56,7 +65,14 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Estimate of total effect");
-    pander::pander(table2, justify = c("left", "right", "right", "right","right","right","right"))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table2, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table2, justify = c("left", "right", "right", "right","right","right","right"))
+    }
+
   }
 
 
@@ -74,7 +90,13 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Estimates of a-paths");
-    pander::pander(table3, justify = c("left", "right", "right", "right","right","right","right"))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table3, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table3, justify = c("left", "right", "right", "right","right","right","right"))
+    }
   }
 
   table4 <- x$output$parameterEstimates.bpath
@@ -91,7 +113,13 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Estimates of b-paths");
-    pander::pander(table4, justify = c("left", "right", "right", "right","right","right","right"))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table4, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table4, justify = c("left", "right", "right", "right","right","right","right"))
+    }
   }
 
 
@@ -104,7 +132,13 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Direct effect (c') ");
-    pander::pander(table5, justify = c("left", "right", "right", "right","right","right","right"))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table5, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table5, justify = c("left", "right", "right", "right","right","right","right"))
+    }
   }
 
 
@@ -117,7 +151,13 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Indirect effects (a*b) ");
-    pander::pander(table6, justify = c("left", rep("right",6)))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table6, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table6, justify = c("left", "right", "right", "right","right","right","right"))
+    }
   }
 
   if (!is.null(x$input$cmvars) | !is.null(x$input$cyvars)) {
@@ -127,15 +167,22 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
     if (!is.null(x$input$cyvars)) {
       terms1 <- paste0(x$input$cyvars, " --> ", x$input$yvar) }
     if (!is.null(x$input$cmvars)) {
-      terms2 <- paste0(x$input$cmvars, " --> ", x$input$mvars) }
-    terms <- c(terms1,terms2)
+      lmv <- length(x$input$mvars)
+      terms2 <- paste0(rep(x$input$cmvars, each=lmv), " --> ", x$input$mvars) }
+    terms <- c(terms2,terms1)
     table7[,1] <- terms
     table7[,c(2:7)] <- format(round(table7[,c(2:7)], digits = 3), nsmall = 2)
     res$covs <- table7
     if (!silence) {
       cat("\n\n")
       cat("Estimates of covariates");
-      pander::pander(table7, justify = c("left", "right", "right", "right","right","right","right"))
+      if(isTRUE(getOption('knitr.in.progress'))) {
+        a <- knitr::kable(table7, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+        a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+        print(a)
+      } else {
+        pander::pander(table7, justify = c("left", "right", "right", "right","right","right","right"))
+      }
     }
   }
 
@@ -149,7 +196,13 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Completely standardized effect sizes  ");
-    pander::pander(table8, justify = c("left", rep("right",6)))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table8, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table8, justify = c("left", "right", "right", "right","right","right","right"))
+    }
   }
 
   table9 <- x$output$parameterEstimates.indirect.es_rat
@@ -162,7 +215,13 @@ The model contains", length(x$input$mvars),"mediators:",x$input$mvars,"\n")
   if (!silence) {
     cat("\n\n")
     cat("Ratio (indirect to total) based effect sizes  ");
-    pander::pander(table9, justify = c("left", rep("right",6)))
+    if(isTRUE(getOption('knitr.in.progress'))) {
+      a <- knitr::kable(table9, format = "html", padding = 2, align = c("l", "r", "r", "r","r","r","r"))
+      a <- kableExtra::kable_styling(a, full_width = F, position = "left")
+      print(a)
+    } else {
+      pander::pander(table9, justify = c("left", "right", "right", "right","right","right","right"))
+    }
   }
 
   invisible(res)

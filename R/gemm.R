@@ -23,16 +23,16 @@
 #'        yvar = "CPB", nboot=500)
 #' print(res)
 #' }
-          gemm <- function(data = NULL,
-                                  xvar,
-                                  mvars,
-                                  yvar,
-                                  xmmod = NULL,
-                                  mymod = NULL,
-                                  cmvars = NULL,
-                                  cyvars = NULL,
-                                  estMethod = "bootstrap",
-                                  nboot = 1000) {
+gemm <- function(data = NULL,
+                 xvar,
+                 mvars,
+                 yvar,
+                 xmmod = NULL,
+                 mymod = NULL,
+                 cmvars = NULL,
+                 cyvars = NULL,
+                 estMethod = "bootstrap",
+                 nboot = 1000) {
 
   res <- list(input = as.list(environment()),
               intermediate = list(),
@@ -42,6 +42,9 @@
 
   res$intermediate$numberOfMediators <-
     nm <- length(mvars);
+
+  res$intermediate$numberOfCovariates <-
+    ncm <- length(cmvars);
 
   ## check if predictor is dichotomous factor
   if (is.factor(data[,xvar])) {
@@ -141,7 +144,6 @@
         se = estMethod,
         bootstrap=nboot);
 
-
   ### Extract R squared values
   res$output$Rsq <-
     lavaan::inspect(res$intermediate$result, "r2");
@@ -150,7 +152,7 @@
   res$intermediate$parameterEstimates <- r1 <-
     lavaan::parameterestimates(result);
   res$output$parameterEstimates.apath <-
-    r1[(r1[,"lhs"] %in% mvars & r1[,"rhs"] %in% c(xvar,xmmod,xmint)),-c(1:3)]
+    r1[(r1[,"lhs"] %in% mvars & r1[,"rhs"] %in% c(xvar,xmmod,xmint) & r1[,"op"] != "~~" ),-c(1:3)]
   res$output$parameterEstimates.bpath <-
     r1[(r1[,"lhs"] %in% yvar & r1[,"rhs"] %in% c(mvars,mymod,myint)),-c(1:3)]
 
@@ -167,8 +169,9 @@
       r1[(r1[,"lhs"] %in% c(ind,indinter, "tot")),-c(1:3)]
 
   ### ... And for the covariates
+  covlabels <- c(paste0("d", rep(seq(mvars), ncm) ,rep(seq(cmvars), each=nm)), paste0("f",seq(cyvars)))
   res$output$parameterEstimates.covs <-
-    r1[(r1[,"rhs"] %in% c(cmvars,cyvars)) & (r1[,"label"] != ""),-c(1:3)]
+  r1[(r1[,"rhs"] %in% c(cmvars,cyvars)) & (r1[,"label"] %in% covlabels),-c(1:3)]
 
 
   ### ... And for the ratio ES

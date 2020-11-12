@@ -1,0 +1,125 @@
+
+<div style="display:block;clear:both;" class="rosetta-log-regr-start"></div>
+<div class="rosetta-log-regr-container">
+
+```{r,eval=TRUE, echo=FALSE}
+
+digits <- x$input$digits;
+pvalueDigits=x$input$pvalueDigits;
+
+oldKableViewOption <- getOption("kableExtra_view_html", NULL);
+options(kableExtra_view_html = FALSE);
+
+if (!exists('headingLevel') || !is.numeric(headingLevel) || (length(headingLevel) != 1)) {
+  headingLevel <- 0;
+}
+
+```
+
+```{r, results='asis', eval=TRUE}
+ufs::heading("Logistic regression analysis {#rosettaLogRegr}", headingLevel=headingLevel);
+```
+
+```{r, echo=echoPartial, results='asis', eval=TRUE}
+
+ufs::kblXtra(
+  data.frame(c("Formula:", "Sample size:", "Predicting:",
+               "Cox & Snell R-squared:", "Nagelkerke R-squared:",
+               "Test for significance:  \n(of full model)"),
+             c(x$intermediate$formula.as.character,
+               sum(complete.cases(x$intermediate$dat.raw)),
+               x$intermediate$levelNames[2],
+               ufs::formatR(x$intermediate$CoxSnellRsq, digits),
+               ufs::formatR(x$intermediate$NagelkerkeRsq, digits),
+               paste0(
+                 "ChiSq[", x$intermediate$chiDf, "] = ",
+                 round(x$intermediate$modelChi, digits),
+                 ", ",
+                 ufs::formatPvalue(x$intermediate$deltaChisq, digits=pvalueDigits)
+               )
+             ),
+             stringsAsFactors=FALSE),
+  col.names = NULL,
+  align = c("r", "l"),
+  row.names = FALSE,
+  escape = TRUE
+);
+
+```
+
+```{r, echo=echoPartial, results='asis', eval=(x$input$crossTabs) }
+
+ufs::heading("Predictions by the null model (",
+             round(100 * x$output$proportionCorrect.null, digits),
+             "% correct)",
+             headingLevel=headingLevel+1);
+
+ufs::kblXtra(x$output$crossTab.null);
+
+ufs::heading("Predictions by the tested model (",
+             round(100 * x$output$proportionCorrect.model, digits),
+             "% correct)",
+             headingLevel=headingLevel+1);
+
+ufs::kblXtra(x$output$crossTab.model);
+
+```
+
+
+
+```{r, echo=echoPartial, results='asis', eval=("raw" %in% x$input$coefficients) }
+
+ufs::heading("Raw regression coefficients",
+             headingLevel = headingLevel+1);
+
+ufs::cat0("\n\n(log odds values, called 'B' in SPSS)\n\n");
+
+tmpDat <- round(x$output$coef.raw[, 1:5], digits);
+tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
+tmpDat[[2]] <- NULL;
+names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
+tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p,
+                              digits=pvalueDigits,
+                              includeP=FALSE);
+
+ufs::kblXtra(
+  tmpDat,
+  escape = TRUE
+);
+
+```
+
+```{r, echo=echoPartial, results='asis', eval=(x$input$collinearity && (!is.null(x$intermediate$vif))) }
+
+ufs::heading("Collinearity diagnostics",
+             headingLevel = headingLevel+1);
+
+collinearityDat <- data.frame(VIF = x$intermediate$vif,
+                              Tolerance = x$intermediate$tolerance);
+row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif));
+
+ufs::kblXtra(
+  collinearityDat,
+  row.names=TRUE,
+  escape = TRUE
+);
+
+```
+
+```{r, echo=echoPartial, results='asis', eval=(!is.null(x$output$plot)), fig.width=5, fig.height=5, fig.cap="Plot with raw data, means, and predicted probability as a logistic curve" }
+
+ufs::heading("Logistic curve plot",
+             headingLevel = headingLevel+1);
+
+x$output$plot;
+
+```
+
+```{r echo=FALSE}
+if (!is.null(oldKableViewOption)) {
+  options(kableExtra_view_html = oldKableViewOption);
+}
+```
+
+</div>
+<div style="display:block;clear:both;" class="rosetta-log-regr-end"></div>

@@ -9,7 +9,7 @@
 #' @export
 #'
 plotIMM <- function(x,...) {
-  
+
   data <- x$intermediate$data
   xmmod <- x$input$xmmod
   mymod <- x$input$mymod
@@ -21,10 +21,10 @@ plotIMM <- function(x,...) {
   ymoderator <- x$input$data[,mymod]
   xdichotomous <- x$intermediate$xdichotomous
   ydichotomous <- x$intermediate$ydichotomous
-  
+
   if ((!length(xmmod)) & (!length(mymod)))
     return(cat("No plots can be given, because no moderators have been specified"))
-  
+
   ## test if moderator exists for x=m path and if it is dichotomous factor
   if (length(xmmod)) {
     if (length(unique(xmoderator)) == 2) xmodLevels <- c(0,1)
@@ -37,12 +37,13 @@ plotIMM <- function(x,...) {
         data[,xmmod] <- as.numeric(xmoderator) - 1;
      }
     }
-    prepPlotIMM(data=data, xvar=xvar, yvar = yvar, mod = xmmod, mvars = mvars, parEst = parEst, 
+    res <-
+      prepPlotIMM(data=data, xvar=xvar, yvar = yvar, mod = xmmod, mvars = mvars, parEst = parEst,
                  vdichotomous = xdichotomous, modLevels = xmodLevels, path = "x-m")
   }
-  
+
   ## test if moderator exists for m=y path and if it is dichotomous factor
-  
+
   if (length(mymod)) {
     if (length(unique(ymoderator)) == 2) ymodLevels <- c(0,1)
     if (is.factor(ymoderator)) {
@@ -53,13 +54,15 @@ plotIMM <- function(x,...) {
         data[,mymod] <- as.numeric(ymoderator) - 1;
       }
     }
-    
-    prepPlotIMM(data=data, xvar=xvar, yvar = yvar, mod = mymod, mvars = mvars, parEst = parEst, 
+
+    res <-
+      prepPlotIMM(data=data, xvar=xvar, yvar = yvar, mod = mymod, mvars = mvars, parEst = parEst,
                  vdichotomous = ydichotomous, modLevels = ymodLevels, path = "m-y")
   }
-  
-  invisible()
-  
+
+  #invisible()
+  return(res)
+
 }  # end function
 
 

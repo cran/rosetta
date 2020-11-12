@@ -5,9 +5,15 @@
 \alias{print.posthocTGH}
 \title{posthocTGH}
 \usage{
-posthocTGH(y, x, method = c("games-howell", "tukey"),
-  conf.level = 0.95, digits = 2, p.adjust = "none",
-  formatPvalue = TRUE)
+posthocTGH(
+  y,
+  x,
+  method = c("games-howell", "tukey"),
+  conf.level = 0.95,
+  digits = 2,
+  p.adjust = "none",
+  formatPvalue = TRUE
+)
 
 \method{print}{posthocTGH}(x, digits = x$input$digits, ...)
 }
@@ -48,7 +54,7 @@ Games-Howell methods.
 This function is based on a file that was once hosted at
 http://www.psych.yorku.ca/cribbie/6130/games_howell.R, but has been removed
 since. It was then adjusted for implementation in the
-\link[userfriendlyscience:userfriendlyscience]{userfriendlyscience::userfriendlyscience} package. Jeffrey Baggett needed the
+\link[userfriendlyscience:userfriendlyscience-package]{userfriendlyscience::userfriendlyscience} package. Jeffrey Baggett needed the
 confidence intervals, and so emailed them, after which his updated function
 was used. In the meantime, it appears Aaron Schlegel
 (\url{https://rpubs.com/aaronsc32}) independently developed a version with

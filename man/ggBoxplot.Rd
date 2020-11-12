@@ -4,8 +4,15 @@
 \alias{ggBoxplot}
 \title{Box plot using ggplot}
 \usage{
-ggBoxplot(dat, y = NULL, x = NULL, labelOutliers = TRUE,
-  outlierColor = "red", theme = ggplot2::theme_bw(), ...)
+ggBoxplot(
+  dat,
+  y = NULL,
+  x = NULL,
+  labelOutliers = TRUE,
+  outlierColor = "red",
+  theme = ggplot2::theme_bw(),
+  ...
+)
 }
 \arguments{
 \item{dat}{Either a vector of values (to display in the box plot) or a
@@ -38,7 +45,7 @@ and showing row numbers of outliers.
 \details{
 This function is based on JasonAizkalns' answer to a question on Stack
 Exchange (Cross Validated; see
-\url{http://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r}).
+\url{https://stackoverflow.com/questions/33524669/labeling-outliers-of-boxplots-in-r}).
 }
 \examples{
 

@@ -84,16 +84,16 @@ prepPlotIMM <- function(data,xvar,yvar,mod, mvars, parEst, vdichotomous,
 
   if (!vdichotomous) {
 
-      plot_indexOfmediation <- ggplot(plotData, aes_string(x=mod,y="IMM",colour = "mediator")) +
-       geom_line(aes(colour = mediator, group = mediator)) +
-       coord_cartesian(ylim=c(ymin, ymax)) +
-       ggtitle("Index of moderated mediation") +
-       xlab(paste0("Moderator: ",mod))
+      plot_indexOfmediation <-
+        ggplot2::ggplot(plotData, ggplot2::aes_string(x=mod,y="IMM",colour = "mediator")) +
+        ggplot2::geom_line(ggplot2::aes(colour = mediator, group = mediator)) +
+        ggplot2::coord_cartesian(ylim=c(ymin, ymax)) +
+        ggplot2::ggtitle("Index of moderated mediation") +
+        ggplot2::xlab(paste0("Moderator: ",mod)) +
+        ggplot2::geom_ribbon(ggplot2::aes_string(ymin="IMM_lwr", ymax="IMM_upr"),
+                             alpha=.3, linetype=0)
 
-      plot_indexOfmediation <- plot_indexOfmediation +
-        geom_ribbon(aes(ymin=plotData$IMM_lwr, ymax=plotData$IMM_upr), alpha=.3, linetype=0)
-
-      print(plot_indexOfmediation)
+      #print(plot_indexOfmediation)
   }
 
   if (vdichotomous) {
@@ -103,18 +103,20 @@ prepPlotIMM <- function(data,xvar,yvar,mod, mvars, parEst, vdichotomous,
     plotData[,mod] <- as.factor(plotData[,mod])
     levels(plotData[,mod]) <- legendLabel
 
-    plot_indexOfmediation <- ggplot(plotData, aes_string(x=mod,y="IMM",colour = "mediator")) +
-      geom_point(aes(colour = mediator), position = pd, size=2) +
-      geom_errorbar(aes(ymin=plotData$IMM_lwr, ymax=plotData$IMM_upr), width=0.2, size=0.5, position = pd) +
-      coord_cartesian(ylim=c(ymin, ymax)) +
-      ggtitle("Index of moderated mediation") +
-      xlab(paste0("Moderator: ",mod))
+    plot_indexOfmediation <-
+      ggplot2::ggplot(plotData, ggplot2::aes_string(x=mod,y="IMM",colour = "mediator")) +
+      ggplot2::geom_point(ggplot2::aes(colour = mediator), position = pd, size=2) +
+      ggplot2::geom_errorbar(ggplot2::aes_string(ymin="IMM_lwr", ymax="IMM_upr"),
+                             width=0.2, size=0.5, position = pd) +
+      ggplot2::coord_cartesian(ylim=c(ymin, ymax)) +
+      ggplot2::ggtitle("Index of moderated mediation") +
+      ggplot2::xlab(paste0("Moderator: ",mod))
 
-    print(plot_indexOfmediation)
+    #print(plot_indexOfmediation)
   }
 
 
-  return()
+  return(plot_indexOfmediation)
 
 } # end function
 
