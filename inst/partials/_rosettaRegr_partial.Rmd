@@ -104,7 +104,7 @@ if (x$input$ci.method.note) {
 ufs::heading("Raw regression coefficients",
              headingLevel = headingLevel+1);
 
-ufs::cat0("\n\n(unstandardized beta values, called 'B' in SPSS)\n\n");
+ufs::cat0("\n\n*(unstandardized beta values, called 'B' in SPSS)*\n\n");
 
 tmpDat <- round(x$output$coef.raw[, 1:5], digits);
 tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
@@ -126,7 +126,7 @@ ufs::kblXtra(
 ufs::heading("Scaled regression coefficients",
              headingLevel = headingLevel+1);
 
-ufs::cat0("\n\n(standardized beta values, called 'Beta' in SPSS)\n\n");
+ufs::cat0("\n\n*(standardized beta values, called 'Beta' in SPSS)*\n\n");
 
 tmpDat <- round(x$output$coef.scaled[, 1:5], digits);
 tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
@@ -151,9 +151,6 @@ ufs::heading("Collinearity diagnostics",
 if (is.vector(x$intermediate$vif.raw)) {
   if ("raw" %in% x$input$coefficients) {
 
-    ufs::heading("For the raw regression coefficients",
-                 headingLevel = headingLevel+2);
-        
     collinearityDat <- data.frame(VIF = x$intermediate$vif.raw,
                                   Tolerance = x$intermediate$tolerance.raw);
     row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
@@ -161,26 +158,25 @@ if (is.vector(x$intermediate$vif.raw)) {
     ufs::kblXtra(
       collinearityDat,
       row.names=TRUE,
-      escape = TRUE
+      escape = TRUE,
+      digits=digits
     );
 
   }
-}
-
-if (is.vector(x$intermediate$vif.scaled)) {
+} else if (is.vector(x$intermediate$vif.scaled)) {
   if ("scaled" %in% x$input$coefficients) {
-    
-    ufs::heading("For the standardized regression coefficients",
-                 headingLevel = headingLevel+2);
-         
-    collinearityDat <- data.frame(VIF = x$intermediate$vif.scaled,
-                                  Tolerance = x$intermediate$tolerance.scaled);
+
+    collinearityDat <- data.frame(
+      VIF = x$intermediate$vif.scaled,
+      Tolerance = x$intermediate$tolerance.scaled
+    );
     row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.scaled));
     
     ufs::kblXtra(
       collinearityDat,
       row.names=TRUE,
-      escape = TRUE
+      escape = TRUE,
+      digits=digits
     );
 
   }

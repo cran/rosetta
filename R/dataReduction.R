@@ -34,6 +34,9 @@
 #' @param itemLabels Optionally, labels to use for the items (optionally, named,
 #' with the names corresponding to the `items`; otherwise, the order of the
 #' labels has to match the order of the items)
+#' @param colorLoadings Whether, when producing an Rmd partial (i.e. when
+#' calling the command while knitting) to colour the cells using
+#' [kableExtra::kable_styling()].
 #' @param fm The method to use for the factor analysis: '`fm`' for Minimum
 #' Residuals; '`ml`' for Maximum Likelihood; and '`pa`' for Principal Factor.
 #' @param digits The number of digits to round to.
@@ -73,12 +76,13 @@
 #' rosetta::factorAnalysis(
 #'   data = pp15,
 #'   items = items,
-#'   nfactors = "eigen"
+#'   nfactors = "eigen",
+#'   scree = TRUE
 #' );
 #'
-#' \dontrun{
-#' ### To get more output and show the
-#' ### output as Rmd Partial in the viewer
+#' ### To get more output, show the
+#' ### output as Rmd Partial in the viewer,
+#' ### and color/size the factor loadings
 #' rosetta::rosettaDataReduction_partial(
 #'   rosetta::factorAnalysis(
 #'     data = pp15,
@@ -86,10 +90,9 @@
 #'     nfactors = "eigen",
 #'     summary = TRUE,
 #'     correlations = TRUE,
-#'     scree = TRUE
+#'     colorLoadings = TRUE
 #'   )
 #' );
-#' }
 #'
 #' @export
 factorAnalysis <- function(data,
@@ -107,6 +110,7 @@ factorAnalysis <- function(data,
                            screePlot = FALSE,
                            residuals = FALSE,
                            itemLabels = items,
+                           colorLoadings = FALSE,
                            fm = "minres",
                            digits = 2,
                            headingLevel = 3,
@@ -139,6 +143,7 @@ principalComponentAnalysis <- function(data,
                                        screePlot = FALSE,
                                        residuals = FALSE,
                                        itemLabels = items,
+                                       colorLoadings = FALSE,
                                        digits = 2,
                                        headingLevel = 3,
                                        ...) {
@@ -170,6 +175,7 @@ dataReduction <- function(data,
                           screePlot = FALSE,
                           residuals = FALSE,
                           itemLabels = items,
+                          colorLoadings = FALSE,
                           fm = "minres",
                           digits = 2,
                           headingLevel = 3,
@@ -230,7 +236,25 @@ dataReduction <- function(data,
               intermediate = list(),
               output = list());
 
+  ### Get PCA eigen values
   res$intermediate$eigen <- eigen(stats::cor(data))$values;
+
+  ### Get EFA eigen values
+  if (dataReductionMethod != "principalComponentAnalysis") {
+    suppressMessages(suppressWarnings(
+      res$intermediate$fa.eigen <-
+        psych::fa(
+          r = data,
+          nfactors = 1,
+          rotate = rotate,
+          covar = covar,
+          fm = fm,
+          ...
+        )
+    ));
+    res$intermediate$commonFactorEigenvalues <-
+      res$intermediate$fa.eigen$values;
+  }
 
   if (!is.numeric(nfactors)) {
     if (nfactors == "parallel") {
@@ -242,23 +266,13 @@ dataReduction <- function(data,
         res$intermediate$nfactors <-
           sum(res$intermediate$eigen > kaiser);
       } else {
-        suppressMessages(suppressWarnings(
-          res$intermediate$fa.eigen <-
-            psych::fa(
-              r = data,
-              nfactors = 1,
-              rotate = rotate,
-              covar = covar,
-              fm = fm,
-              ...
-            )
-        ));
-        res$intermediate$commonFactorEigenvalues <-
-          res$intermediate$fa.eigen$values;
         res$intermediate$nfactors <-
           sum(res$intermediate$commonFactorEigenvalues > kaiser);
       }
     }
+  } else {
+    res$intermediate$nfactors <-
+      nfactors;
   }
 
   ### Potentially add a helper function based on
@@ -303,13 +317,23 @@ dataReduction <- function(data,
   row.names(res$output$loadings) <-
     itemLabels[row.names(res$output$loadings)];
 
+  ### Potentially color loadings
+
+
   ### Summary
   res$output$summary <-
     t(res$intermediate$object$Vaccounted);
-  res$output$summary <-
-    as.data.frame(res$output$summary[, 1:3]);
-  names(res$output$summary) <-
-    c("SS Loadings", "% of Variance", "Cumulative %");
+
+  if (ncol(res$output$summary) == 2) {
+    ### 1 factor
+    names(res$output$summary) <-
+      c("SS Loadings", "% of Variance");
+  } else {
+    res$output$summary <-
+      as.data.frame(res$output$summary[, 1:3]);
+    names(res$output$summary) <-
+      c("SS Loadings", "% of Variance", "Cumulative %");
+  }
   rownames(res$output$summary) <-
     paste0(FactorName, " ", 1:nrow(res$output$summary));
 
@@ -501,13 +525,51 @@ print.rosettaDataReduction <- function(x,
     if (x$input$loadings) {
       ufs::cat0(FactorName, " loadings\n\n");
       print(round(x$output$loadings, digits=x$input$digits));
+
+      if (x$input$colorLoadings) {
+
+        x$output$loadings[, 1:(ncol(x$output$loadings) - 1)] <-
+          data.frame(
+            lapply(
+              x$output$loadings[, 1:(ncol(x$output$loadings) - 1),
+                                drop=FALSE],
+              function(column) {
+                kableExtra::cell_spec(
+                  round(column, x$input$digits),
+                  bold = T,
+                  color = kableExtra::spec_color(
+                    abs(column),
+                    end = 0.9,
+                    direction = -1,
+                    scale_from = c(0, 1)
+                  ),
+                  font_size = kableExtra::spec_font_size(
+                    abs(column),
+                    scale_from = c(-1, 1)
+                  )
+                )
+              }
+            )
+          );
+      }
+
+      ufs::kblXtra(
+        x$output$loadings,
+        digits = digits,
+        viewer = TRUE
+      );
+
     }
 
     if (x$input$summary) {
       ufs::cat0(FactorName, " summary\n\n");
       roundedSummary <-
         round(x$output$summary, digits=x$input$digits);
-      roundedSummary[, 2:3] <- 100*roundedSummary[, 2:3];
+      if (ncol(roundedSummary) > 2) {
+        roundedSummary[, 2:3] <- 100*roundedSummary[, 2:3];
+      } else {
+        roundedSummary[, 2] <- 100*roundedSummary[, 2];
+      }
       print(roundedSummary);
     }
 

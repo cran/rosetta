@@ -14,6 +14,7 @@ logRegr(
   digits = 2,
   pvalueDigits = 3,
   crossTabs = TRUE,
+  oddsRatios = TRUE,
   plot = FALSE,
   collinearity = FALSE,
   env = parent.frame(),
@@ -80,6 +81,9 @@ rosettaLogRegr_partial(
 \item{crossTabs}{Whether to show cross tabulations of the correct
 predictions for the null model and the tested model, as well as the
 percentage of correct predictions.}
+
+\item{oddsRatios}{Whether to also present the regression coefficients
+as odds ratios (i.e. simply after a call to \code{\link[base:Log]{base::exp()}}).}
 
 \item{plot}{Whether to display the plot.}
 

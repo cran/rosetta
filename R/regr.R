@@ -482,18 +482,19 @@ print.rosettaRegr <- function(x, digits=x$input$digits,
       cat0("\nCollinearity diagnostics:\n\n");
       if (is.vector(x$intermediate$vif.raw)) {
         if ("raw" %in% x$input$coefficients) {
-          cat0("  For the raw regression coefficients:\n\n");
-          collinearityDat <- data.frame(VIF = x$intermediate$vif.raw,
-                                        Tolerance = x$intermediate$tolerance.raw);
+          collinearityDat <- data.frame(
+            VIF = round(x$intermediate$vif.raw, digits),
+            Tolerance = round(x$intermediate$tolerance.raw, digits)
+          );
           row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
           print(collinearityDat);
         }
-      }
-      if (is.vector(x$intermediate$vif.scaled)) {
+      } else if (is.vector(x$intermediate$vif.scaled)) {
         if ("scaled" %in% x$input$coefficients) {
-          cat0("\n  For the standardized regression coefficients:\n\n");
-          collinearityDat <- data.frame(VIF = x$intermediate$vif.scaled,
-                                        Tolerance = x$intermediate$tolerance.scaled);
+          collinearityDat <- data.frame(
+            VIF = round(x$intermediate$vif.scaled, digits),
+            Tolerance = round(x$intermediate$tolerance.scaled, digits)
+          );
           row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
           print(collinearityDat);
         }

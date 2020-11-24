@@ -65,25 +65,46 @@ ufs::kblXtra(x$output$crossTab.model);
 
 ```
 
+```{r, echo=echoPartial, results='asis', eval=TRUE }
 
-
-```{r, echo=echoPartial, results='asis', eval=("raw" %in% x$input$coefficients) }
-
-ufs::heading("Raw regression coefficients",
+ufs::heading("Regression coefficients",
              headingLevel = headingLevel+1);
 
-ufs::cat0("\n\n(log odds values, called 'B' in SPSS)\n\n");
+ufs::cat0("\n\n*(log odds values, called 'B' in SPSS)*\n\n");
 
-tmpDat <- round(x$output$coef.raw[, 1:5], digits);
+tmpDat <- round(x$output$coef[, 1:5], digits);
 tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
 tmpDat[[2]] <- NULL;
 names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p,
+tmpDat$p <- ufs::formatPvalue(x$output$coef$p,
                               digits=pvalueDigits,
                               includeP=FALSE);
 
 ufs::kblXtra(
   tmpDat,
+  escape = TRUE
+);
+
+```
+
+```{r, echo=echoPartial, results='asis', eval=x$input$oddsRatios }
+
+ufs::heading("Regression coefficients as odds ratios",
+             headingLevel = headingLevel+1);
+
+ufs::cat0("\n\n*(ORs, called 'Exp(B)' in SPSS)*\n\n");
+
+tmpDat2 <- round(x$output$coef_oddsRatios, digits);
+tmpDat2[[1]] <- paste0("[", tmpDat2[[1]], "; ", tmpDat2[[2]], "]");
+tmpDat2[[2]] <- NULL;
+names(tmpDat2) <- c(
+  paste0(x$input$conf.level*100, "% conf. int."),
+  "Odds Ratio point estimate"
+);
+row.names(tmpDat2) <- row.names(tmpDat);
+
+ufs::kblXtra(
+  tmpDat2,
   escape = TRUE
 );
 
@@ -101,12 +122,13 @@ row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif));
 ufs::kblXtra(
   collinearityDat,
   row.names=TRUE,
-  escape = TRUE
+  escape = TRUE,
+  digits=digits
 );
 
 ```
 
-```{r, echo=echoPartial, results='asis', eval=(!is.null(x$output$plot)), fig.width=5, fig.height=5, fig.cap="Plot with raw data, means, and predicted probability as a logistic curve" }
+```{r, echo=echoPartial, results='asis', eval=(!is.null(x$output$plot)), fig.width=5, fig.height=5, fig.cap="Plot with raw data, (binned) means, and predicted probability as a logistic curve" }
 
 ufs::heading("Logistic curve plot",
              headingLevel = headingLevel+1);

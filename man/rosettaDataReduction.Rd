@@ -25,6 +25,7 @@ factorAnalysis(
   screePlot = FALSE,
   residuals = FALSE,
   itemLabels = items,
+  colorLoadings = FALSE,
   fm = "minres",
   digits = 2,
   headingLevel = 3,
@@ -46,6 +47,7 @@ principalComponentAnalysis(
   screePlot = FALSE,
   residuals = FALSE,
   itemLabels = items,
+  colorLoadings = FALSE,
   digits = 2,
   headingLevel = 3,
   ...
@@ -123,6 +125,10 @@ factors of components.}
 with the names corresponding to the \code{items}; otherwise, the order of the
 labels has to match the order of the items)}
 
+\item{colorLoadings}{Whether, when producing an Rmd partial (i.e. when
+calling the command while knitting) to colour the cells using
+\code{\link[kableExtra:kable_styling]{kableExtra::kable_styling()}}.}
+
 \item{fm}{The method to use for the factor analysis: '\code{fm}' for Minimum
 Residuals; '\code{ml}' for Maximum Likelihood; and '\code{pa}' for Principal Factor.}
 
@@ -177,12 +183,13 @@ items <-
 rosetta::factorAnalysis(
   data = pp15,
   items = items,
-  nfactors = "eigen"
+  nfactors = "eigen",
+  scree = TRUE
 );
 
-\dontrun{
-### To get more output and show the
-### output as Rmd Partial in the viewer
+### To get more output, show the
+### output as Rmd Partial in the viewer,
+### and color/size the factor loadings
 rosetta::rosettaDataReduction_partial(
   rosetta::factorAnalysis(
     data = pp15,
@@ -190,9 +197,8 @@ rosetta::rosettaDataReduction_partial(
     nfactors = "eigen",
     summary = TRUE,
     correlations = TRUE,
-    scree = TRUE
+    colorLoadings = TRUE
   )
 );
-}
 
 }

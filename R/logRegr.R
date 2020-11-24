@@ -14,6 +14,8 @@
 #' @param crossTabs Whether to show cross tabulations of the correct
 #' predictions for the null model and the tested model, as well as the
 #' percentage of correct predictions.
+#' @param oddsRatios Whether to also present the regression coefficients
+#' as odds ratios (i.e. simply after a call to [base::exp()]).
 #' @param plot Whether to display the plot.
 #' @param collinearity Whether to show collinearity diagnostics.
 #' @param env If no dataframe is specified in \code{data}, use this argument to
@@ -101,6 +103,7 @@
 logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
                     pvalueDigits = 3,
                     crossTabs = TRUE,
+                    oddsRatios = TRUE,
                     plot=FALSE,
                     collinearity = FALSE,
                     env=parent.frame(),
@@ -254,6 +257,15 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
     c(paste0(conf.level*100,"% CI, lo"),
       paste0(conf.level*100,"% CI, hi"),
       'estimate', 'se', 'z', 'p');
+
+  ### Odds ratios
+  res$output$coef_oddsRatios <-
+    data.frame(exp(res$output$coef[, 1]),
+               exp(res$output$coef[, 2]),
+               exp(res$output$coef[, 3]));
+  names(res$output$coef_oddsRatios) <-
+    paste0("OR: ",
+           names(res$output$coef)[1:3]);
 
   ######################################################################
   ### Make the prediction tables
@@ -577,11 +589,25 @@ print.rosettaLogRegr <- function(x, digits=x$input$digits,
                                   includeP=FALSE);
     print(tmpDat, ...);
 
+    if (x$input$oddsRatios) {
+      cat("\nRegression coefficients as odds ratios (ORs, called 'Exp(B)' in SPSS):\n\n");
+      tmpDat <- round(x$output$coef_oddsRatios, digits);
+      tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
+      tmpDat[[2]] <- NULL;
+      names(tmpDat) <- c(
+        paste0("OR ", x$input$conf.level*100, "% conf. int."),
+        "OR point estimate"
+      );
+      print(tmpDat, ...);
+    }
+
     if (x$input$collinearity && (!is.null(x$intermediate$vif))) {
       cat0("\nCollinearity diagnostics:\n\n");
       if (is.vector(x$intermediate$vif)) {
-        collinearityDat <- data.frame(VIF = x$intermediate$vif,
-                                      Tolerance = x$intermediate$tolerance);
+        collinearityDat <- data.frame(
+          VIF = round(x$intermediate$vif, digits),
+          Tolerance = round(x$intermediate$tolerance, digits)
+        );
         row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif));
         print(collinearityDat);
       }
