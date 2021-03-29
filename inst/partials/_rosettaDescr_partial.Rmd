@@ -26,6 +26,7 @@ labels <-
   );
 
 maxPlotCols <- attr(x, "maxPlotCols");
+show <- attr(x, "show");
 
 if ("rosettaDescriptives" %in% class(x)) {
   frequencies <- FALSE;
@@ -183,7 +184,7 @@ if (any(numericResults)) {
           digits);
 
   ufs::kblXtra(
-    res,
+    res[, show],
     row.names = TRUE,
     escape = TRUE
   );

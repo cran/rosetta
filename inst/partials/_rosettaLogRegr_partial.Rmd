@@ -17,12 +17,15 @@ if (!exists('headingLevel') || !is.numeric(headingLevel) || (length(headingLevel
 ```
 
 ```{r, results='asis', eval=TRUE}
-ufs::heading("Logistic regression analysis {#rosettaLogRegr}", headingLevel=headingLevel);
+ufs::heading("Logistic regression analysis",
+             idSlug("rosettaLogRegr"), "}", headingLevel=headingLevel);
 ```
+
+**Summary**
 
 ```{r, echo=echoPartial, results='asis', eval=TRUE}
 
-ufs::kblXtra(
+knitTable(
   data.frame(c("Formula:", "Sample size:", "Predicting:",
                "Cox & Snell R-squared:", "Nagelkerke R-squared:",
                "Test for significance:  \n(of full model)"),
@@ -39,6 +42,7 @@ ufs::kblXtra(
                )
              ),
              stringsAsFactors=FALSE),
+  #caption="Summary",
   col.names = NULL,
   align = c("r", "l"),
   row.names = FALSE,
@@ -49,28 +53,67 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$crossTabs) }
 
-ufs::heading("Predictions by the null model (",
-             round(100 * x$output$proportionCorrect.null, digits),
-             "% correct)",
-             headingLevel=headingLevel+1);
+caption1 <-
+  ifelse(
+    isTRUE(getOption('knitr.in.progress')) && (knitr::is_latex_output()),
+    paste0(
+      "Predictions by the null model (",
+      round(100 * x$output$proportionCorrect.null, digits),
+      "\\% correct)"
+    ),
+    paste0(
+      "Predictions by the null model (",
+      round(100 * x$output$proportionCorrect.null, digits),
+      "% correct)"
+    )
+  );
 
-ufs::kblXtra(x$output$crossTab.null);
+# ufs::heading(caption1,
+#              headingLevel=headingLevel+1);
 
-ufs::heading("Predictions by the tested model (",
-             round(100 * x$output$proportionCorrect.model, digits),
-             "% correct)",
-             headingLevel=headingLevel+1);
+cat0("\n\n", caption1, "\n\n");
 
-ufs::kblXtra(x$output$crossTab.model);
+knitTable(
+  x$output$crossTab.null
+  #,caption = caption1
+  );
+
+caption2 <-
+  ifelse(
+    isTRUE(getOption('knitr.in.progress')) && (knitr::is_latex_output()),
+    paste0(
+      "Predictions by the tested model (",
+      round(100 * x$output$proportionCorrect.model, digits),
+      "\\% correct)"
+    ),
+    paste0(
+      "Predictions by the tested model (",
+      round(100 * x$output$proportionCorrect.model, digits),
+      "% correct)"
+    )
+  );
+
+# ufs::heading(caption2,
+#              headingLevel=headingLevel+1);
+
+cat0("\n\n", caption2, "\n\n");
+
+knitTable(
+  x$output$crossTab.model
+  # ,caption=caption2
+);
 
 ```
 
+**Regression coefficients**
+
 ```{r, echo=echoPartial, results='asis', eval=TRUE }
 
-ufs::heading("Regression coefficients",
-             headingLevel = headingLevel+1);
+# ufs::heading("Regression coefficients {regr-coefs-",
+#              randomSlug, "}",
+#              headingLevel = headingLevel+1);
 
-ufs::cat0("\n\n*(log odds values, called 'B' in SPSS)*\n\n");
+# ufs::cat0("\n\n*(log odds values, called 'B' in SPSS)*\n\n");
 
 tmpDat <- round(x$output$coef[, 1:5], digits);
 tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
@@ -80,19 +123,26 @@ tmpDat$p <- ufs::formatPvalue(x$output$coef$p,
                               digits=pvalueDigits,
                               includeP=FALSE);
 
-ufs::kblXtra(
-  tmpDat,
-  escape = TRUE
+kableExtra::add_footnote(
+  knitTable(
+    tmpDat,
+#    caption="",
+    escape = TRUE
+  ),
+  "These are log odds values, called 'B' in SPSS."
 );
 
 ```
 
+**Regression coefficients as odds ratios**
+
 ```{r, echo=echoPartial, results='asis', eval=x$input$oddsRatios }
 
-ufs::heading("Regression coefficients as odds ratios",
-             headingLevel = headingLevel+1);
+# ufs::heading("Regression coefficients as odds ratios {#regr-coefs-as-ors-",
+#              randomSlug, "}",
+#              headingLevel = headingLevel+1);
 
-ufs::cat0("\n\n*(ORs, called 'Exp(B)' in SPSS)*\n\n");
+# ufs::cat0("\n\n*(ORs, called 'Exp(B)' in SPSS)*\n\n");
 
 tmpDat2 <- round(x$output$coef_oddsRatios, digits);
 tmpDat2[[1]] <- paste0("[", tmpDat2[[1]], "; ", tmpDat2[[2]], "]");
@@ -103,24 +153,32 @@ names(tmpDat2) <- c(
 );
 row.names(tmpDat2) <- row.names(tmpDat);
 
-ufs::kblXtra(
-  tmpDat2,
-  escape = TRUE
+kableExtra::add_footnote(
+  knitTable(
+    tmpDat2,
+    #caption = "Regression coefficients as odds ratios",
+    escape = TRUE
+  ),
+  "These are odds ratios, called 'Exp(B)' in SPSS."
 );
 
 ```
 
+**Collinearity diagnostics**
+
 ```{r, echo=echoPartial, results='asis', eval=(x$input$collinearity && (!is.null(x$intermediate$vif))) }
 
-ufs::heading("Collinearity diagnostics",
-             headingLevel = headingLevel+1);
+# ufs::heading("Collinearity diagnostics {#collinearity-diag-",
+#              randomSlug, "}",
+             # headingLevel = headingLevel+1);
 
 collinearityDat <- data.frame(VIF = x$intermediate$vif,
                               Tolerance = x$intermediate$tolerance);
 row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif));
 
-ufs::kblXtra(
+knitTable(
   collinearityDat,
+  #caption = "Collinearity diagnostics",
   row.names=TRUE,
   escape = TRUE,
   digits=digits
@@ -130,8 +188,9 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(!is.null(x$output$plot)), fig.width=5, fig.height=5, fig.cap="Plot with raw data, (binned) means, and predicted probability as a logistic curve" }
 
-ufs::heading("Logistic curve plot",
-             headingLevel = headingLevel+1);
+# ufs::heading("Logistic curve plot",
+#              idSlug('log-curve-plot'),
+#              headingLevel = headingLevel+1);
 
 x$output$plot;
 

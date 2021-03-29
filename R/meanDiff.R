@@ -311,7 +311,7 @@ meanDiff <- function(x, y=NULL, paired = FALSE, r.prepost = NULL,
     if (!paired & (var.equal == "test")) {
       res$objects$equal.var_test <- stats::var.test(x, y);
       res$type = paste0(res$type, "tested for equal variances, ",
-                        ufs::formatPvalue(res$objects$equal.var_test$p.value, digits=3), ", so ");
+                        formatPvalue(res$objects$equal.var_test$p.value, digits=3), ", so ");
       if (res$objects$equal.var_test$p.value < .05) {
         var.equal <- "no";
       }
@@ -448,7 +448,7 @@ print.meanDiff <- function (x, digits=x$digits, powerDigits=x$digits + 2, ...) {
            "\n\n",
            powerInfo,
            "\n\n(secondary information (NHST): t[", round(x$df, digits), "] = ", round(x$t, digits), ", ",
-             ufs::formatPvalue(x$p, digits=digits+1), ")\n"));
+             formatPvalue(x$p, digits=digits+1), ")\n"));
   if (regexpr("unequal variances", x$type) > -1) {
     cat(paste0("\n\nNOTE: because the t-test is based on unequal variances, the ",
                "NHST p-value may be inconsistent with the confidence interval. ",
@@ -509,7 +509,7 @@ pander.meanDiff <- function (x, digits=x$digits, powerDigits=x$digits + 2, ...) 
              "\n\n",
              powerInfo,
              "\n\n*(secondary information (NHST): t[", round(x$df, digits), "] = ", round(x$t, digits), ", ",
-             ufs::formatPvalue(x$p, digits=digits+1), ")*\n"));
+             formatPvalue(x$p, digits=digits+1), ")*\n"));
   if (regexpr("unequal variances", x$type) > -1) {
     cat(paste0("\n\nNOTE: because the t-test is based on unequal variances, the ",
                "NHST p-value may be inconsistent with the confidence interval. ",

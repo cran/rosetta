@@ -17,12 +17,14 @@ if (!exists('headingLevel') || !is.numeric(headingLevel) || (length(headingLevel
 ```
 
 ```{r, results='asis', eval=TRUE}
-ufs::heading("Regression analysis {#rosettaRegr}", headingLevel=headingLevel);
+ufs::heading("Regression analysis",
+             idSlug("rosettaRegr"),
+             headingLevel=headingLevel);
 ```
 
 ```{r, echo=echoPartial, results='asis', eval=TRUE}
 
-ufs::kblXtra(
+tab <-
   data.frame(c("Formula:", "Sample size:",
                "Multiple R-squared:", "Test for significance:  \n(of full model)"),
              c(x$intermediate$formula.as.character,
@@ -50,12 +52,7 @@ ufs::kblXtra(
                  )
                )
              ),
-             stringsAsFactors=FALSE),
-  col.names = NULL,
-  align = c("r", "l"),
-  row.names = FALSE,
-  escape = TRUE
-);
+             stringsAsFactors=FALSE);
 
 ciMsg <- "\n* Note that the confidence interval for R^2 is based on ";
 if (x$input$ci.method[1] == 'r.con') {
@@ -91,9 +88,36 @@ if (x$input$ci.method[1] == 'r.con') {
 }
 
 if (x$input$ci.method.note) {
+  
+  cat("\n\n**Summary**\n\n");
+  
+  kableExtra::add_footnote(
+    knitTable(
+      tab,
+      #caption="Summary",
+      col.names = NULL,
+      align = c("r", "l"),
+      row.names = FALSE,
+      escape = TRUE
+    ),
+    label = ciMsg
+  );
+
   cat("\n\n");
-  cat(ciMsg, sep=" ");
-  cat("\n\n");
+  
+} else {
+    
+  cat("\n\n**Summary**\n\n");
+
+  knitTable(
+    tab,
+    #caption="Summary",
+    col.names = NULL,
+    align = c("r", "l"),
+    row.names = FALSE,
+    escape = TRUE
+  );
+  
 }
 
 
@@ -101,10 +125,10 @@ if (x$input$ci.method.note) {
 
 ```{r, echo=echoPartial, results='asis', eval=("raw" %in% x$input$coefficients) }
 
-ufs::heading("Raw regression coefficients",
-             headingLevel = headingLevel+1);
-
-ufs::cat0("\n\n*(unstandardized beta values, called 'B' in SPSS)*\n\n");
+# ufs::heading("Raw regression coefficients",
+#              headingLevel = headingLevel+1);
+# 
+# ufs::cat0("\n\n*(unstandardized beta values, called 'B' in SPSS)*\n\n");
 
 tmpDat <- round(x$output$coef.raw[, 1:5], digits);
 tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
@@ -114,19 +138,25 @@ tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p,
                               digits=pvalueDigits,
                               includeP=FALSE);
 
-ufs::kblXtra(
-  tmpDat,
-  escape = TRUE
+cat("\n\n**Raw regression coefficients**\n\n");
+
+kableExtra::add_footnote(
+  knitTable(
+    tmpDat,
+    #caption = "Raw regression coefficients",
+    escape = TRUE
+  ),
+  label = "These are unstandardized beta values, called 'B' in SPSS."
 );
 
 ```
 
 ```{r, echo=echoPartial, results='asis', eval=("scaled" %in% x$input$coefficients) }
 
-ufs::heading("Scaled regression coefficients",
-             headingLevel = headingLevel+1);
-
-ufs::cat0("\n\n*(standardized beta values, called 'Beta' in SPSS)*\n\n");
+# ufs::heading("Scaled regression coefficients",
+#              headingLevel = headingLevel+1);
+# 
+# ufs::cat0("\n\n*(standardized beta values, called 'Beta' in SPSS)*\n\n");
 
 tmpDat <- round(x$output$coef.scaled[, 1:5], digits);
 tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
@@ -136,17 +166,25 @@ tmpDat$p <- ufs::formatPvalue(x$output$coef.scaled$p,
                               digits=pvalueDigits,
                               includeP=FALSE);
 
-ufs::kblXtra(
-  tmpDat,
-  escape = TRUE
+cat("\n\n**Scaled regression coefficients**\n\n");
+
+kableExtra::add_footnote(
+  knitTable(
+    tmpDat,
+    #caption = "Scaled regression coefficients",
+    escape = TRUE
+  ),
+  label = "These are standardized beta values, called 'Beta' in SPSS."
 );
 
 ```
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$collinearity && ((!is.null(x$intermediate$vif.raw)) || (!is.null(x$intermediate$vif.scaled)))) }
 
-ufs::heading("Collinearity diagnostics",
-             headingLevel = headingLevel+1);
+# ufs::heading("Collinearity diagnostics",
+#              headingLevel = headingLevel+1);
+
+cat("\n\n**Collinearity diagnostics**\n\n");
 
 if (is.vector(x$intermediate$vif.raw)) {
   if ("raw" %in% x$input$coefficients) {
@@ -155,8 +193,9 @@ if (is.vector(x$intermediate$vif.raw)) {
                                   Tolerance = x$intermediate$tolerance.raw);
     row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.raw));
     
-    ufs::kblXtra(
+    knitTable(
       collinearityDat,
+      #caption = "Collinearity diagnostics",
       row.names=TRUE,
       escape = TRUE,
       digits=digits
@@ -172,8 +211,9 @@ if (is.vector(x$intermediate$vif.raw)) {
     );
     row.names(collinearityDat) <- paste0(ufs::repStr(4), names(x$intermediate$vif.scaled));
     
-    ufs::kblXtra(
+    knitTable(
       collinearityDat,
+      #caption="Collinearity diagnostics",
       row.names=TRUE,
       escape = TRUE,
       digits=digits
@@ -186,8 +226,8 @@ if (is.vector(x$intermediate$vif.raw)) {
 
 ```{r, echo=echoPartial, results='asis', eval=(!is.null(x$output$plot)), fig.width=5, fig.height=5, fig.cap="Scatterplot with regression line" }
 
-ufs::heading("Scatterplot",
-             headingLevel = headingLevel+1);
+# ufs::heading("Scatterplot",
+#              headingLevel = headingLevel+1);
 
 x$output$plot;
 

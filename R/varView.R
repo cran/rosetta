@@ -71,7 +71,7 @@ varView <- function(data,
          "don't actually exist in the dataset you passed ('",
          datasetName,
          "'). Specifically, the non-existent columns are: ",
-         ufs::vecTxtQ(setdiff(columns, names(data))), ".");
+         vecTxtQ(setdiff(columns, names(data))), ".");
   }
 
   ### Get indices of columns
@@ -87,7 +87,7 @@ varView <- function(data,
     unlist(lapply(data,
                   function(x) {
                     return(
-                      ufs::vecTxt(
+                      vecTxt(
                         class(x)
                       )
                     );
@@ -148,7 +148,7 @@ varView <- function(data,
                       lvls <- lvls[1:min(nLevels, maxLevels)];
                       vals <- vals[1:min(nLevels, maxLevels)];
                       res <-
-                        ufs::vecTxt(paste0(trimws(lvls), " (",
+                        vecTxt(paste0(trimws(lvls), " (",
                                            vals, ")"));
                       if (nLevels > maxLevels) {
                         res <- paste0(res,
@@ -171,7 +171,7 @@ varView <- function(data,
                       lvls <- valueLabelLabels[1:min(nLevels, maxLevels)];
                       vals <- valueLabelValues[1:min(nLevels, maxLevels)];
                       res <-
-                        ufs::vecTxt(paste0(trimws(lvls), " (",
+                        vecTxt(paste0(trimws(lvls), " (",
                                            vals, ")"));
                       if (nLevels > maxLevels) {
                         res <- paste0(res,
@@ -277,7 +277,7 @@ print.rosettaVarView <- function(x,
              "the `labeller` package convention, for example as a result ",
              "of importing a dataset (from SPSS, STATA or SAS) ",
              "using the `haven` package. These variables (",
-             ufs::vecTxtQ(row.names(x)[labellerValueLabelsSet]),
+             vecTxtQ(row.names(x)[labellerValueLabelsSet]),
              ") are considered continuous by R, but the assignment ",
              "of value labels implies that the numeric values ",
              "represent categories, and if that is the case, ",

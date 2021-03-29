@@ -1,6 +1,6 @@
 noZero <- ufs::noZero;
 
-formatR <- ufs::formatR;
+formatR <- formatR;
 
 ifelseObj <- ufs::ifelseObj;
 
@@ -9,7 +9,7 @@ is.even <- ufs::is.even
 
 `%IN%` <- ufs::`%IN%`;
 
-cat0 <- ufs::cat0;
+cat0 <- cat0;
 
 isTrue <- ufs::isTrue;
 

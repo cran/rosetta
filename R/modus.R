@@ -19,7 +19,7 @@ modus <- function(vector) {
   ### Store the names of the most common category (or categories)
   categoryVector <- names(freqs[freqs==highestFreq]);
   ### Now, we need to supply this back in the same class as the original.
-  if (originalClass=="factor") {
+  if ("factor" %in% originalClass) {
     categoryVector <- as.factor(categoryVector);
   }
   else {

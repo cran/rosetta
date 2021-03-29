@@ -18,7 +18,9 @@ if (!exists('headingLevel') || !is.numeric(headingLevel) || (length(headingLevel
 ```
 
 ```{r, results='asis', eval=TRUE}
-ufs::heading("Reliability analysis {#rosettaReliability}", headingLevel=headingLevel);
+ufs::heading("Reliability analysis",
+             idSlug("rosettaReliability"),
+             headingLevel=headingLevel);
 ```
 
 ```{r, echo=echoPartial, results='asis', eval=(!is.null(x$scaleStructure)) }

@@ -69,5 +69,12 @@ c("pp15");
 #   sep = ";",
 #   row.names = FALSE
 # );
-
-
+#
+# pp15$highDose_OpenWhy <- as.character(pp15$highDose_OpenWhy);
+# pp15$highDose_OpenWhyNot <- as.character(pp15$highDose_OpenWhyNot);
+#
+# haven::write_sav(
+#   pp15,
+#   here::here("data", "pp15.sav")
+# );
+#

@@ -23,12 +23,13 @@ ufs::heading(x$output$analysisName,
 
 ```{r, echo=echoPartial, results='asis', eval=TRUE}
 
-ufs::kblXtra(
+knitTable(
   data.frame(c("Extraction method:", "Rotation:", "Sample size:"),
              c(x$output$extractionMethod,
                x$output$rotation,
                x$output$n),
              stringsAsFactors=FALSE),
+  caption = "Input parameters",
   col.names = NULL,
   align = c("r", "l"),
   row.names = FALSE
@@ -39,8 +40,8 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$loadings) }
 
-ufs::heading(x$input$FactorName, " loadings",
-             headingLevel = headingLevel+1);
+# ufs::heading(x$input$FactorName, " loadings",
+#              headingLevel = headingLevel+1);
 
 if (x$input$colorLoadings) {
   x$output$loadings[, 1:(ncol(x$output$loadings) - 1)] <-
@@ -68,8 +69,9 @@ if (x$input$colorLoadings) {
   );
 }
 
-ufs::kblXtra(
+knitTable(
   x$output$loadings,
+  caption = paste0(x$input$FactorName, " loadings"),
   digits = digits
 );
 
@@ -78,8 +80,8 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$summary) }
 
-ufs::heading(x$input$FactorName, " summary",
-             headingLevel = headingLevel+1);
+# ufs::heading(x$input$FactorName, " summary",
+#              headingLevel = headingLevel+1);
 
 roundedSummary <-
   round(x$output$summary, digits=x$input$digits);
@@ -89,8 +91,9 @@ if (ncol(roundedSummary) > 2) {
   roundedSummary[, 2] <- 100*roundedSummary[, 2];
 }
 
-ufs::kblXtra(
+knitTable(
   roundedSummary,
+  caption = paste0(x$input$FactorName, " summary"),
   digits = digits
 );
 
@@ -99,11 +102,12 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$correlations) }
 
-ufs::heading(x$input$FactorName, " correlations",
-             headingLevel = headingLevel+1);
+# ufs::heading(x$input$FactorName, " correlations",
+#              headingLevel = headingLevel+1);
 
-ufs::kblXtra(
+knitTable(
   x$output$correlations,
+  caption = paste0(x$input$FactorName, " correlations"),
   digits = digits
 );
 
@@ -111,8 +115,8 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$modelFit) }
 
-ufs::heading("Model fit",
-             headingLevel = headingLevel+1);
+# ufs::heading("Model fit",
+#              headingLevel = headingLevel+1);
 
 modelFit <-
   x$output$modelFit;
@@ -125,8 +129,9 @@ modelFit[, 7] <-
 modelFit[, 8] <-
   ufs::formatPvalue(modelFit[, 8], includeP = FALSE, spaces=FALSE);
 
-ufs::kblXtra(
+knitTable(
   modelFit,
+  caption = "Model fit",
   escape=TRUE
 );
 
@@ -134,11 +139,12 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$modelFit) }
 
-ufs::heading("Initial eigen values",
-             headingLevel = headingLevel+1);
+# ufs::heading("Initial eigen values",
+#              headingLevel = headingLevel+1);
 
-ufs::kblXtra(
+knitTable(
   x$output$eigenValues,
+  caption="Initial eigen values",
   digits = digits + 2
 );
 
@@ -146,8 +152,8 @@ ufs::kblXtra(
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$screePlot), fig.width=5, fig.height=5, fig.cap="Scree plot of the eigen values" }
 
-ufs::heading("Scree plot",
-             headingLevel = headingLevel+1);
+# ufs::heading("Scree plot",
+#              headingLevel = headingLevel+1);
 
 x$output$screePlot;
 
@@ -156,12 +162,13 @@ x$output$screePlot;
 
 ```{r, echo=echoPartial, results='asis', eval=(x$input$residuals) }
 
-ufs::heading("Residuals",
-             headingLevel = headingLevel+1);
+# ufs::heading("Residuals",
+#              headingLevel = headingLevel+1);
 
-ufs::kblXtra(
+knitTable(
   x$output$residuals,
-  digits = digits
+  caption = "Residuals",
+  digits = digits,
 );
 
 ```

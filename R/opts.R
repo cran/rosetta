@@ -92,7 +92,7 @@ opts$reset <- function(...) {
     } else {
       invalidOptions <-
         !(optionNames %in% names(opts$defaults));
-      stop("Option(s) ", ufs::vecTxtQ(optionNames[invalidOptions]),
+      stop("Option(s) ", vecTxtQ(optionNames[invalidOptions]),
            "' is/are not a valid (i.e. existing) option for rosetta!");
     }
   }

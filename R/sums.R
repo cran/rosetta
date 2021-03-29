@@ -44,7 +44,7 @@ sums <- function(...,
     requiredValidValuesPercentages <- requiredValidValues;
     requiredValidValues <- ceiling(requiredValidValuesPercentages * ncol(dat));
     if (!silent) {
-      ufs::cat0("Argument 'requiredValidValues' was set to a proportion (",
+      cat0("Argument 'requiredValidValues' was set to a proportion (",
            requiredValidValuesPercentages, "), so only computing a mean for cases ",
            "where at least that proportion of variables (i.e. ",
            100 * requiredValidValuesPercentages,

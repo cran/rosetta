@@ -25,7 +25,7 @@ frequencies <- function(..., digits = 1, nsmall=1, transposed=FALSE, round=1,
 #' @export
 print.frequencies <- function(x, ...) {
   for (currentName in names(x)) {
-    ufs::cat0("### Frequencies for '", ufs::extractVarName(currentName), "'\n\n");
+    cat0("### Frequencies for '", ufs::extractVarName(currentName), "'\n\n");
     print(x[[currentName]]$freq);
     cat("\n");
   }
@@ -37,7 +37,7 @@ print.frequencies <- function(x, ...) {
 #' @export
 pander.frequencies <- function(x, prefix="###", ...) {
   for (currentName in names(x)) {
-    ufs::cat0(prefix, " Frequencies for '", ufs::extractVarName(currentName), "'\n\n");
+    cat0(prefix, " Frequencies for '", ufs::extractVarName(currentName), "'\n\n");
     pander(x[[currentName]]$freq);
     cat("\n");
   }

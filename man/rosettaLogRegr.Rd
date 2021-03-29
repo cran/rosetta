@@ -12,6 +12,8 @@ logRegr(
   data = NULL,
   conf.level = 0.95,
   digits = 2,
+  predictGroupValue = NULL,
+  comparisonGroupValue = NULL,
   pvalueDigits = 3,
   crossTabs = TRUE,
   oddsRatios = TRUE,
@@ -75,6 +77,9 @@ rosettaLogRegr_partial(
 \item{conf.level}{The confidence level for the confidence intervals.}
 
 \item{digits}{The number of digits used when printing the results.}
+
+\item{predictGroupValue, comparisonGroupValue}{Can optionally be used
+to set the value to predict and the value to compare with.}
 
 \item{pvalueDigits}{The number of digits used when printing the p-values.}
 

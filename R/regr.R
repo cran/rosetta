@@ -451,7 +451,7 @@ print.rosettaRegr <- function(x, digits=x$input$digits,
                x$intermediate$summary.raw$fstatistic[2], ", ",
                x$intermediate$summary.raw$fstatistic[3], "] = ",
                round(x$intermediate$summary.raw$fstatistic[1], digits),
-               ", ", ufs::formatPvalue(stats::pf(x$intermediate$summary.raw$fstatistic[1],
+               ", ", formatPvalue(stats::pf(x$intermediate$summary.raw$fstatistic[1],
                                                  x$intermediate$summary.raw$fstatistic[2],
                                                  x$intermediate$summary.raw$fstatistic[3],
                                                  lower.tail=FALSE), digits=pvalueDigits), "\n"));
@@ -461,7 +461,7 @@ print.rosettaRegr <- function(x, digits=x$input$digits,
       tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
       tmpDat[[2]] <- NULL;
       names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-      tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p,
+      tmpDat$p <- formatPvalue(x$output$coef.raw$p,
                                     digits=pvalueDigits,
                                     includeP=FALSE);
       print(tmpDat, ...);
@@ -472,7 +472,7 @@ print.rosettaRegr <- function(x, digits=x$input$digits,
       tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
       tmpDat[[2]] <- NULL;
       names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-      tmpDat$p <- ufs::formatPvalue(x$output$coef.scaled$p,
+      tmpDat$p <- formatPvalue(x$output$coef.scaled$p,
                                     digits=pvalueDigits,
                                     includeP=FALSE);
       print(tmpDat, ...);
@@ -530,7 +530,7 @@ print.rosettaRegr <- function(x, digits=x$input$digits,
     } else {
       ciMsg <- paste0(ciMsg,
                       " -- I don't know actually, something appears to have gone wrong. ",
-                      "The 'ci.method' argument was set to ", ufs::vecTxtQ(x$input$ci.method),
+                      "The 'ci.method' argument was set to ", vecTxtQ(x$input$ci.method),
                       ".");
     }
 
@@ -563,7 +563,7 @@ pander.rosettaRegr <- function (x, digits = x$input$digits, pvalueDigits = x$inp
   pander::pandoc.p(paste0("Test for significance: F[", x$intermediate$summary.raw$fstatistic[2],
                   ", ", x$intermediate$summary.raw$fstatistic[3], "] = ",
                   round(x$intermediate$summary.raw$fstatistic[1], digits),
-                  ", ", ufs::formatPvalue(stats::pf(x$intermediate$summary.raw$fstatistic[1],
+                  ", ", formatPvalue(stats::pf(x$intermediate$summary.raw$fstatistic[1],
                                                     x$intermediate$summary.raw$fstatistic[2], x$intermediate$summary.raw$fstatistic[3],
                                                     lower.tail = FALSE), digits = pvalueDigits), "\n"));
 
@@ -573,7 +573,7 @@ pander.rosettaRegr <- function (x, digits = x$input$digits, pvalueDigits = x$inp
     tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
     tmpDat[[2]] <- NULL;
     names(tmpDat)[1] <- paste0(x$input$conf.level * 100, "% conf. int.");
-    tmpDat$p <- ufs::formatPvalue(x$output$coef.raw$p, digits = pvalueDigits, includeP = FALSE);
+    tmpDat$p <- formatPvalue(x$output$coef.raw$p, digits = pvalueDigits, includeP = FALSE);
     pander::pander(tmpDat, missing="");
   }
   if ("scaled" %in% x$input$coefficients) {
@@ -582,7 +582,7 @@ pander.rosettaRegr <- function (x, digits = x$input$digits, pvalueDigits = x$inp
     tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
     tmpDat[[2]] <- NULL;
     names(tmpDat)[1] <- paste0(x$input$conf.level * 100, "% conf. int.");
-    tmpDat$p <- ufs::formatPvalue(x$output$coef.scaled$p, digits = pvalueDigits, includeP = FALSE);
+    tmpDat$p <- formatPvalue(x$output$coef.scaled$p, digits = pvalueDigits, includeP = FALSE);
     pander::pander(tmpDat, missing="");
   }
 }

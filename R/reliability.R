@@ -112,7 +112,7 @@ reliability <- function(data,
 
   if (omegaFromPsych) {
     suppressWarnings(suppressMessages({
-      if (!requireNamespace("GPArotation")) {
+      if (!requireNamespace("GPArotation", quietly=TRUE)) {
         stop("To compute omega with the `psych` package, you need to have ",
              "package {GPArotation} installed. You can install it with:\n\n",
              "install.packages('GPArotation');");
@@ -122,7 +122,7 @@ reliability <- function(data,
 
   if (!is.data.frame(data)) {
     stop("As `data`, you did not pass a data frame, but an object of ",
-         "class ", ufs::vecTxt(class(data), useQuote = "`"), ". You ",
+         "class ", vecTxt(class(data), useQuote = "`"), ". You ",
          "can try converting this object to a data frame using ",
          "`as.data.frame()`.");
   }
@@ -134,7 +134,7 @@ reliability <- function(data,
     if (length(wrongItems) > 0) {
       stop("In `items`, you specified one or more variable/column ",
            "names that do not exist in the data frame you passed in ",
-           "`data`: ", ufs::vecTxt(items[wrongItems], useQuote = "`"), ".");
+           "`data`: ", vecTxt(items[wrongItems], useQuote = "`"), ".");
     }
   }
 
@@ -142,9 +142,9 @@ reliability <- function(data,
     itemLabels <- items;
   } else {
     if (length(itemLabels) != length(items)) {
-      stop("The vector with item labels (", ufs::vecTxtQ(itemLabels),
+      stop("The vector with item labels (", vecTxtQ(itemLabels),
            ") does not have the same length ",
-           "as the vector with items(", ufs::vecTxtQ(items),
+           "as the vector with items(", vecTxtQ(items),
            ")!");
     }
   }
@@ -243,7 +243,8 @@ reliability <- function(data,
               data.frame(
                 itemTotal_r.ci.lo = res$conf.int[1],
                 itemTotal_r.point = res$estimate,
-                itemTotal_r.ci.hi = res$conf.int[2]
+                itemTotal_r.ci.hi = res$conf.int[2],
+                drop=FALSE
               )
             );
           }
@@ -257,7 +258,8 @@ reliability <- function(data,
       lapply(
         items,
         function(i) {
-          return(res$data[, names(res$data) != i]);
+          return(res$data[, names(res$data) != i,
+                          drop=FALSE]);
         }
       );
     names(res$dataOmittingItems) <-
@@ -299,47 +301,9 @@ reliability <- function(data,
       );
     row.names(res$itemRestCorrelations) <- items;
 
-    ### Compute alpha omitting items
-    res$alphaOmittingItems <-
-      lapply(
-        res$dataOmittingItems,
-        function(i) {
-          res <- list();
-          invisible(
-            utils::capture.output(
-              suppressMessages(
-                suppressWarnings(
-                  res$alphaFromPsychObject <-
-                    psych::alpha(
-                      i,
-                      delete=FALSE,
-                      check.keys=FALSE,
-                      warnings=FALSE)
-                )
-              )
-            )
-          );
-          res$alphaFromPsych <- res$alphaFromPsychObject$total$raw_alpha;
-          if (alphaOmittedCIs) {
-            invisible(utils::capture.output(
-              res$alphaFromPsych_ci <-
-                psych::alpha.ci(
-                  alpha = res$alphaFromPsych,
-                  n.obs = nrow(i),
-                  n.var = length(items),
-                  p.val = 1 - conf.level
-                )
-            ));
-          }
-          return(res);
-        }
-      );
-    names(res$alphaOmittingItems) <-
-      items;
-
-    ### Compute omega from `psych` omitting items
-    if (omegaFromPsych) {
-      res$omegaFromPsychOmittingItems <-
+    if (length(items) > 2) {
+      ### Compute alpha omitting items
+      res$alphaOmittingItems <-
         lapply(
           res$dataOmittingItems,
           function(i) {
@@ -348,108 +312,154 @@ reliability <- function(data,
               utils::capture.output(
                 suppressMessages(
                   suppressWarnings(
-                    res$omegaFromPsychObject <-
-                      psych::omega(
+                    res$alphaFromPsychObject <-
+                      psych::alpha(
                         i,
-                        nfactors = 1,
-                        flip=FALSE,
-                        plot=FALSE
-                      )
+                        delete=FALSE,
+                        check.keys=FALSE,
+                        warnings=FALSE)
                   )
                 )
               )
             );
-            res$omegaFromPsych <- res$omegaFromPsychObject$omega.tot;
-            return(res);
-          }
-        );
-      names(res$omegaFromPsychOmittingItems) <-
-        items;
-    }
-
-    ### Compute omega from `MBESS` omitting items
-    if (omegaFromMBESS) {
-      res$omegaFromMBESSOmittingItems <-
-        lapply(
-          res$dataOmittingItems,
-          function(i) {
-            res <- list();
-            res$omegaFromMBESSObject <-
-              MBESS::ci.reliability(
-                i,
-                type="omega",
-                conf.level = conf.level
-              );
-            res$omegaFromMBESS <-
-              res$omegaFromMBESSObject$est;
-            return(res);
-          }
-        );
-      names(res$omegaFromMBESSOmittingItems) <-
-        items;
-    }
-
-    if (itemOmittedCorsWithRest && itemOmittedCorsWithTotal) {
-      res$itemOmitted_correlations <-
-        cbind(res$itemRestCorrelations,
-              res$itemTotalCorrelations);
-    } else if (itemOmittedCorsWithRest) {
-      res$itemOmitted_correlations <-
-        res$itemRestCorrelations;
-    } else if (itemOmittedCorsWithTotal) {
-      res$itemOmitted_correlations <-
-        res$itemTotalCorrelations;
-    } else {
-      res$itemOmitted_correlations <- NULL;
-    }
-
-    res$itemOmitted_internalConsistency <-
-      do.call(
-        rbind,
-        lapply(
-          items,
-          function(i) {
+            res$alphaFromPsych <- res$alphaFromPsychObject$total$raw_alpha;
             if (alphaOmittedCIs) {
-              subResult <- data.frame(
-                alpha.ci.lo =
-                  res$alphaOmittingItems[[i]]$alphaFromPsych_ci$lower.ci,
-                alpha.point =
-                  res$alphaOmittingItems[[i]]$alphaFromPsych,
-                alpha.ci.hi =
-                  res$alphaOmittingItems[[i]]$alphaFromPsych_ci$upper.ci
-              );
-            } else {
-              subResult <- data.frame(
-                alpha.point =
-                  res$alphaOmittingItems[[i]]$alphaFromPsych
-              );
-            }
-            if (omegaFromPsych) {
-              subResult <-
-                cbind(
-                  subResult,
-                  data.frame(
-                    omega.point_fromPsych =
-                      res$omegaFromPsychOmittingItems[[i]]$omegaFromPsych
+              invisible(utils::capture.output(
+                res$alphaFromPsych_ci <-
+                  psych::alpha.ci(
+                    alpha = res$alphaFromPsych,
+                    n.obs = nrow(i),
+                    n.var = length(items),
+                    p.val = 1 - conf.level
                   )
-                );
+              ));
             }
-            if (omegaFromMBESS) {
-              subResult <-
-                cbind(
-                  subResult,
-                  data.frame(
-                    omega.point_fromMBESS =
-                      res$omegaFromMBESSOmittingItems[[i]]$omegaFromMBESS
-                  )
-                );
-            }
-            return(subResult);
+            return(res);
           }
-        )
-      );
-    row.names(res$itemOmitted_internalConsistency) <-
-      items;
+        );
+      names(res$alphaOmittingItems) <-
+        items;
+
+      ### Compute omega from `psych` omitting items
+      if (omegaFromPsych) {
+        res$omegaFromPsychOmittingItems <-
+          lapply(
+            res$dataOmittingItems,
+            function(i) {
+              res <- list();
+              invisible(
+                utils::capture.output(
+                  suppressMessages(
+                    suppressWarnings(
+                      res$omegaFromPsychObject <-
+                        psych::omega(
+                          i,
+                          nfactors = 1,
+                          flip=FALSE,
+                          plot=FALSE
+                        )
+                    )
+                  )
+                )
+              );
+              res$omegaFromPsych <- res$omegaFromPsychObject$omega.tot;
+              return(res);
+            }
+          );
+        names(res$omegaFromPsychOmittingItems) <-
+          items;
+      }
+
+      ### Compute omega from `MBESS` omitting items
+      if (omegaFromMBESS) {
+        res$omegaFromMBESSOmittingItems <-
+          lapply(
+            res$dataOmittingItems,
+            function(i) {
+              res <- list();
+              res$omegaFromMBESSObject <-
+                MBESS::ci.reliability(
+                  i,
+                  type="omega",
+                  conf.level = conf.level
+                );
+              res$omegaFromMBESS <-
+                res$omegaFromMBESSObject$est;
+              return(res);
+            }
+          );
+        names(res$omegaFromMBESSOmittingItems) <-
+          items;
+      }
+
+      if (itemOmittedCorsWithRest && itemOmittedCorsWithTotal) {
+        res$itemOmitted_correlations <-
+          cbind(res$itemRestCorrelations,
+                res$itemTotalCorrelations);
+      } else if (itemOmittedCorsWithRest) {
+        res$itemOmitted_correlations <-
+          res$itemRestCorrelations;
+      } else if (itemOmittedCorsWithTotal) {
+        res$itemOmitted_correlations <-
+          res$itemTotalCorrelations;
+      } else {
+        res$itemOmitted_correlations <- NULL;
+      }
+
+      res$itemOmitted_internalConsistency <-
+        do.call(
+          rbind,
+          lapply(
+            items,
+            function(i) {
+              if (alphaOmittedCIs) {
+                subResult <- data.frame(
+                  alpha.ci.lo =
+                    res$alphaOmittingItems[[i]]$alphaFromPsych_ci$lower.ci,
+                  alpha.point =
+                    res$alphaOmittingItems[[i]]$alphaFromPsych,
+                  alpha.ci.hi =
+                    res$alphaOmittingItems[[i]]$alphaFromPsych_ci$upper.ci
+                );
+              } else {
+                subResult <- data.frame(
+                  alpha.point =
+                    res$alphaOmittingItems[[i]]$alphaFromPsych
+                );
+              }
+              if (omegaFromPsych) {
+                subResult <-
+                  cbind(
+                    subResult,
+                    data.frame(
+                      omega.point_fromPsych =
+                        res$omegaFromPsychOmittingItems[[i]]$omegaFromPsych
+                    )
+                  );
+              }
+              if (omegaFromMBESS) {
+                subResult <-
+                  cbind(
+                    subResult,
+                    data.frame(
+                      omega.point_fromMBESS =
+                        res$omegaFromMBESSOmittingItems[[i]]$omegaFromMBESS
+                    )
+                  );
+              }
+              return(subResult);
+            }
+          )
+        );
+      row.names(res$itemOmitted_internalConsistency) <-
+        items;
+    }
+  } else {
+    res$alphaOmittingItems <- NULL;
+    res$omegaFromMBESSOmittingItems <- NULL;
+    res$omegaFromPsychOmittingItems <- NULL;
+    res$itemOmitted_correlations <- NULL;
+    res$itemOmitted_internalConsistency <- NULL;
   }
 
   class(res) <-
@@ -532,21 +542,21 @@ print.rosettaReliability <- function(x,
       print(x$scaleStructure, ...);
     }
     if (!is.null(x$scaleDescriptiveCIs)) {
-      ufs::cat0(
+      cat0(
         "\nScale descriptives\n\n"
       );
       print(x$scaleDescriptiveCIs);
-      ufs::cat0("\n");
+      cat0("\n");
     }
     if (!is.null(x$itemLevelDescriptiveCIs)) {
-      ufs::cat0(
+      cat0(
         "\nItem-level descriptives\n\n"
       );
       print(x$itemLevelDescriptiveCIs);
-      ufs::cat0("\n");
+      cat0("\n");
     }
     if (!is.null(x$itemOmitted_correlations)) {
-      ufs::cat0(
+      cat0(
         "\nCorrelations of items with scale\n\n"
       );
       row.names(x$itemOmitted_correlations) <-

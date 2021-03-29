@@ -178,10 +178,11 @@ descr <- function(x,
       );
     names(res) <- items;
 
+    attr(res, "originalArgs") <- args;
     attr(res, "maxPlotCols") <- maxPlotCols;
     attr(res, "datasetName") <- varName;
     attr(res, "digits") <- digits;
-    attr(res, "show") <- show;
+    attr(res, "show") <- attr(res[[1]], 'show');
     attr(res, "headingLevel") <- headingLevel;
 
     class(res) <- c("rosettaDescriptives",
@@ -235,7 +236,7 @@ descr <- function(x,
         mode <- ifelseObj(length(mode) > maxModes, "(multi)", mode);
       }
       if (length(mode) > 1) {
-        mode <- ufs::vecTxt(mode);
+        mode <- vecTxt(mode);
       }
 
       meanCI <- ufs::formatCI(
@@ -277,6 +278,12 @@ descr <- function(x,
       showColArgs <- intersect(show, names(args));
       show <-
         showColArgs[which(unlist(args[showColArgs]))];
+
+      if (!IQR) {
+        show <- setdiff(show, "iqr");
+      } else if (!("iqr" %in% show)) {
+        show <- c(show, "iqr");
+      }
 
       if (histogram) {
         attr(res, "histogram") <- histogram(x);
@@ -481,10 +488,10 @@ print.rosettaDescr <- function(x,
           round(res[, colsToRound],
                 digits);
 
-        ufs::cat0("\nDescriptives for variables in data frame ",
+        cat0("\nDescriptives for variables in data frame ",
                   attr(x, "datasetName"), "\n\n");
 
-        print(res);
+        print(res[, show]);
 
       }
 
@@ -493,7 +500,7 @@ print.rosettaDescr <- function(x,
         for (i in names(x[!numericResults])) {
 
           if ("freq" %in% class(x[[i]])) {
-            ufs::cat0("\nFrequencies for ", i, "\n\n");
+            cat0("\nFrequencies for ", i, "\n\n");
             print(x[[i]]$dat);
           } else {
             print(x[[i]]);

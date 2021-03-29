@@ -25,7 +25,7 @@
 #' @note This function is based on a file that was once hosted at
 #' http://www.psych.yorku.ca/cribbie/6130/games_howell.R, but has been removed
 #' since. It was then adjusted for implementation in the
-#' [userfriendlyscience::userfriendlyscience] package. Jeffrey Baggett needed the
+#' `userfriendlyscience` package. Jeffrey Baggett needed the
 #' confidence intervals, and so emailed them, after which his updated function
 #' was used. In the meantime, it appears Aaron Schlegel
 #' (\url{https://rpubs.com/aaronsc32}) independently developed a version with
@@ -35,7 +35,7 @@
 #' Also, for some reason, \code{p.adjust} can be used to specify additional
 #' correction of \emph{p} values. I'm not sure why I implemented this, but I'm
 #' not entirely sure it was a mistake either. Therefore, in
-#' \code{userfriendlyscience} version 0.6-2, the default of this setting
+#' `userfriendlyscience` version 0.6-2, the default of this setting
 #' changed from \code{"holm"} to \code{"none"} (also see
 #' https://stats.stackexchange.com/questions/83941/games-howell-post-hoc-test-in-r).
 #' @author Gjalt-Jorn Peters (Open University of the Netherlands) & Jeff Bagget
@@ -182,7 +182,7 @@ print.posthocTGH <- function(x, digits=x$input$digits, ...) {
     dat <- x$output$games.howell;
   }
   dat[, 6:ncol(dat)] <- sapply(dat[, 6:ncol(dat)],
-                               ufs::formatPvalue,
+                               formatPvalue,
                                digits = digits,
                            includeP = FALSE);
   print(dat, digits=digits);

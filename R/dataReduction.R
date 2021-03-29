@@ -194,7 +194,7 @@ dataReduction <- function(data,
 
   if (!(rotate == "none")) {
     suppressWarnings(suppressMessages({
-      if (!requireNamespace("GPArotation")) {
+      if (!requireNamespace("GPArotation", quietly=TRUE)) {
         stop("To rotate the ", factorsName, ", you need to have ",
              "package {GPArotation} installed. You can install it with:\n\n",
              "install.packages('GPArotation');");
@@ -517,13 +517,13 @@ print.rosettaDataReduction <- function(x,
 
     FactorName <- x$input$FactorName;
 
-    ufs::cat0("\n", x$output$analysisName, "\n");
-    ufs::cat0("\n  Extraction method: ", x$output$extractionMethod);
-    ufs::cat0("\n  Rotation :         ", x$output$rotation);
-    ufs::cat0("\n  Sample size :      ", x$output$n, "\n\n");
+    cat0("\n", x$output$analysisName, "\n");
+    cat0("\n  Extraction method: ", x$output$extractionMethod);
+    cat0("\n  Rotation :         ", x$output$rotation);
+    cat0("\n  Sample size :      ", x$output$n, "\n\n");
 
     if (x$input$loadings) {
-      ufs::cat0(FactorName, " loadings\n\n");
+      cat0(FactorName, " loadings\n\n");
       print(round(x$output$loadings, digits=x$input$digits));
 
       if (x$input$colorLoadings) {
@@ -562,7 +562,7 @@ print.rosettaDataReduction <- function(x,
     }
 
     if (x$input$summary) {
-      ufs::cat0(FactorName, " summary\n\n");
+      cat0(FactorName, " summary\n\n");
       roundedSummary <-
         round(x$output$summary, digits=x$input$digits);
       if (ncol(roundedSummary) > 2) {
@@ -574,7 +574,7 @@ print.rosettaDataReduction <- function(x,
     }
 
     if (x$input$correlations) {
-      ufs::cat0(FactorName, " correlations\n\n");
+      cat0(FactorName, " correlations\n\n");
       print(round(x$output$correlations, digits=x$input$digits));
     }
 
@@ -589,13 +589,13 @@ print.rosettaDataReduction <- function(x,
       modelFit[, 7] <-
         round(modelFit[, 7]);
       modelFit[, 8] <-
-        ufs::formatPvalue(modelFit[, 8], includeP = FALSE, spaces=FALSE);
-      ufs::cat0("\nModel fit\n\n");
+        formatPvalue(modelFit[, 8], includeP = FALSE, spaces=FALSE);
+      cat0("\nModel fit\n\n");
       print(modelFit);
     }
 
     if (x$input$eigenValues) {
-      ufs::cat0("\nInitial eigen values\n\n");
+      cat0("\nInitial eigen values\n\n");
       print(round(x$output$eigenValues, digits=x$input$digits));
     }
 
@@ -605,7 +605,7 @@ print.rosettaDataReduction <- function(x,
     }
 
     if (x$input$residuals) {
-      ufs::cat0("\nResiduals\n\n");
+      cat0("\nResiduals\n\n");
       print(round(x$output$residuals, digits=x$input$digits));
     }
 

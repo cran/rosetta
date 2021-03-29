@@ -1,7 +1,7 @@
 
 # This file is a generated template, your changes will not be overwritten
 
-freqjmvClass <- if (requireNamespace('jmvcore')) R6::R6Class(
+freqjmvClass <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "freqjmvClass",
     inherit = freqjmvBase,
     private = list(

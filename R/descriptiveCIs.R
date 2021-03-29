@@ -41,9 +41,9 @@ descriptiveCIs <- function(data,
     itemLabels <- items;
   } else {
     if (length(itemLabels) != length(items)) {
-      stop("The vector with item labels (", ufs::vecTxtQ(itemLabels),
+      stop("The vector with item labels (", vecTxtQ(itemLabels),
            ") does not have the same length ",
-           "as the vector with items(", ufs::vecTxtQ(items),
+           "as the vector with items(", vecTxtQ(items),
            ")!");
     }
   }

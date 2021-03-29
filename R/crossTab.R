@@ -92,7 +92,7 @@ print.crossTab <- function(x, digits=x$input$digits,
   print(x$intermediate$confIntV, digits=digits);
   cat("\nChi-square[", x$output$chisq$parameter, "] = ",
       round(x$output$chisq$statistic, digits), ", ",
-      ufs::formatPvalue(x$output$chisq$p.value, pValueDigits), sep="");
+      formatPvalue(x$output$chisq$p.value, pValueDigits), sep="");
 }
 
 #' @method pander crossTab
@@ -107,6 +107,6 @@ pander.crossTab <- function(x, digits=x$input$digits,
   print(x$intermediate$confIntV, digits=digits);
   cat("  \nChi-square[", x$output$chisq$parameter, "] = ",
       round(x$output$chisq$statistic, digits), ", ",
-      ufs::formatPvalue(x$output$chisq$p.value, pValueDigits), sep="");
+      formatPvalue(x$output$chisq$p.value, pValueDigits), sep="");
 }
 

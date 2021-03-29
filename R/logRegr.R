@@ -8,6 +8,8 @@
 #' @param data Optionally, a dataset containing the variables in the formula
 #' (if not specified, the variables must exist in the environment specified in
 #' \code{env}.
+#' @param predictGroupValue,comparisonGroupValue Can optionally be used
+#' to set the value to predict and the value to compare with.
 #' @param conf.level The confidence level for the confidence intervals.
 #' @param digits The number of digits used when printing the results.
 #' @param pvalueDigits The number of digits used when printing the p-values.
@@ -101,6 +103,8 @@
 #'
 #' @export logRegr
 logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
+                    predictGroupValue= NULL,
+                    comparisonGroupValue=NULL,
                     pvalueDigits = 3,
                     crossTabs = TRUE,
                     oddsRatios = TRUE,
@@ -170,15 +174,21 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
   res$intermediate$formula <- formula(res$intermediate$formula.as.character,
                                       env = environment());
 
-  highestValue <-
-    names(sort(table(res$intermediate$dat.raw[, 1]), decreasing=TRUE))[1];
-  lowestValue <-
-    names(sort(table(res$intermediate$dat.raw[, 1]), decreasing=TRUE))[2];
+  if (is.null(predictGroupValue)) {
+    highestValue <-
+      sort(names(table(res$intermediate$dat.raw[, 1])), decreasing=TRUE)[1];
+  } else {
+    highestValue <- predictGroupValue;
+  }
+  if (is.null(comparisonGroupValue)) {
+    lowestValue <-
+      sort(names(table(res$intermediate$dat.raw[, 1])), decreasing=TRUE)[2];
+  } else {
+    lowestValue <- comparisonGroupValue;
+  }
 
   res$intermediate$levelNames <-
-    levelNames <-
-    c(lowestValue,
-    highestValue);
+    levelNames <- c(lowestValue, highestValue);
 
   res$intermediate$dat.raw[, 1] <-
     ifelse(
@@ -555,17 +565,17 @@ print.rosettaLogRegr <- function(x, digits=x$input$digits,
          "\n\n",
          "Significance test of the entire model (all predictors together):\n",
          "  Cox & Snell R-squared: ",
-         ufs::formatR(x$intermediate$CoxSnellRsq, digits),
+         formatR(x$intermediate$CoxSnellRsq, digits),
          ",\n",
          "  Nagelkerke R-squared: ",
-         ufs::formatR(x$intermediate$NagelkerkeRsq, digits),
+         formatR(x$intermediate$NagelkerkeRsq, digits),
          "\n",
          "  Test for significance: ChiSq[",
          x$intermediate$chiDf,
          "] = ",
          round(x$intermediate$modelChi, digits),
          ", ",
-         ufs::formatPvalue(x$intermediate$deltaChisq, digits=pvalueDigits), "\n");
+         formatPvalue(x$intermediate$deltaChisq, digits=pvalueDigits), "\n");
 
     if (x$input$crossTabs) {
       cat0("\nPredictions by the null model (",
@@ -584,7 +594,7 @@ print.rosettaLogRegr <- function(x, digits=x$input$digits,
     tmpDat[[1]] <- paste0("[", tmpDat[[1]], "; ", tmpDat[[2]], "]");
     tmpDat[[2]] <- NULL;
     names(tmpDat)[1] <- paste0(x$input$conf.level*100, "% conf. int.");
-    tmpDat$p <- ufs::formatPvalue(x$output$coef$p,
+    tmpDat$p <- formatPvalue(x$output$coef$p,
                                   digits=pvalueDigits,
                                   includeP=FALSE);
     print(tmpDat, ...);

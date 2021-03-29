@@ -274,9 +274,9 @@ print.oneway <- function(x, digits=x$input$digits,
 
   if (x$input$etasq) {
     cat(paste0("Eta Squared: ", round(x$input$conf.level * 100),
-               "% CI = [", ufs::formatR(x$output$etasq.ci[1], digits=digits),
-               "; ", ufs::formatR(x$output$etasq.ci[2], digits=digits),
-               "], point estimate = ", ufs::formatR(x$output$etasq, digits=digits), "\n"));
+               "% CI = [", formatR(x$output$etasq.ci[1], digits=digits),
+               "; ", formatR(x$output$etasq.ci[2], digits=digits),
+               "], point estimate = ", formatR(x$output$etasq, digits=digits), "\n"));
   }
 
   if (x$input$omegasq | x$input$etasq) {
@@ -286,7 +286,7 @@ print.oneway <- function(x, digits=x$input$digits,
   x$output$dat[, 1:4] <- round(x$output$dat[, 1:4], digits);
 
   ### Format p-values nicely
-  x$output$dat$p <- ufs::formatPvalue(x$output$dat$p,
+  x$output$dat$p <- formatPvalue(x$output$dat$p,
                                  digits=pvalueDigits,
                                  includeP=FALSE);
 
@@ -306,41 +306,41 @@ print.oneway <- function(x, digits=x$input$digits,
   if (x$input$means) {
     cat(paste0("### Means for y (", x$input$y.name, ") separate for each level of x (", x$input$x.name, "):\n"));
     lapply(1:length(x$intermediate$means), function(index) {
-      ufs::cat0("\n", x$input$x.name, " = ", names(x$intermediate$means[index]), ":\n");
+      cat0("\n", x$input$x.name, " = ", names(x$intermediate$means[index]), ":\n");
       print(x$intermediate$means[[index]], digits=digits);
     });
   }
 
   if (x$input$levene) {
-    ufs::cat0("\n### Levene's test for homogeneity of variance:\n\n",
+    cat0("\n### Levene's test for homogeneity of variance:\n\n",
          "F[", x$intermediate$leveneTest[1, 1],
          ", ", x$intermediate$leveneTest[2, 1],
          "] = ", round(x$intermediate$leveneTest[1, 2], digits),
-         ", ", ufs::formatPvalue(x$intermediate$leveneTest[1, 3], digits=digits+1),
+         ", ", formatPvalue(x$intermediate$leveneTest[1, 3], digits=digits+1),
          ".\n");
   }
 
   if (!is.null(x$input$posthoc)) {
-    ufs::cat0("\n### Post hoc test: ", x$input$posthoc,"\n\n");
+    cat0("\n### Post hoc test: ", x$input$posthoc,"\n\n");
     if (tolower(x$input$posthoc) %in% c('games-howell')) {
       x$intermediate$posthoc <- as.data.frame(x$intermediate$posthoc);
       x$intermediate$posthoc[, 1:(ncol(x$intermediate$posthoc)-1)] <-
         round(x$intermediate$posthoc[, 1:(ncol(x$intermediate$posthoc)-1)], digits);
       x$intermediate$posthoc[, ncol(x$intermediate$posthoc)] <-
-        ufs::formatPvalue(x$intermediate$posthoc[, ncol(x$intermediate$posthoc)], digits=digits+1, includeP=FALSE);
+        formatPvalue(x$intermediate$posthoc[, ncol(x$intermediate$posthoc)], digits=digits+1, includeP=FALSE);
       print(x$intermediate$posthoc, quote=FALSE);
     }
     else if (tolower(x$input$posthoc) %in% c('tukey')) {
       x$intermediate$posthoc <- lapply(x$intermediate$posthoc, function(x) {
         x[, 1:(ncol(x)-1)] <- round(x[, 1:(ncol(x)-1)], digits);
-        x[, ncol(x)] <- ufs::formatPvalue(x[,ncol(x)], digits=digits+1, includeP=FALSE);
+        x[, ncol(x)] <- formatPvalue(x[,ncol(x)], digits=digits+1, includeP=FALSE);
         return(x);
       });
       print(x$intermediate$posthoc[[1]], quote=FALSE);
     }
     else {
       x$intermediate$posthoc$p.value <-
-        ufs::formatPvalue(x$intermediate$posthoc$p.value, digits=pvalueDigits, includeP=FALSE);
+        formatPvalue(x$intermediate$posthoc$p.value, digits=pvalueDigits, includeP=FALSE);
       print(x$intermediate$posthoc$p.value, quote=FALSE, na.print="");
     }
 
@@ -351,17 +351,17 @@ print.oneway <- function(x, digits=x$input$digits,
   }
 
   if (x$input$corrections) {
-    ufs::cat0("\n### Welch correction for nonhomogeneous variances:\n\n",
+    cat0("\n### Welch correction for nonhomogeneous variances:\n\n",
          "F[", x$intermediate$welch$parameter[1],
          ", ", round(x$intermediate$welch$parameter[2], digits),
          "] = ", round(x$intermediate$welch$statistic, digits),
-         ", ", ufs::formatPvalue(x$intermediate$welch$p.value, digits=digits+1),
+         ", ", formatPvalue(x$intermediate$welch$p.value, digits=digits+1),
          ".\n");
-    ufs::cat0("\n### Brown-Forsythe correction for nonhomogeneous variances:\n\n",
+    cat0("\n### Brown-Forsythe correction for nonhomogeneous variances:\n\n",
          "F[", x$intermediate$brown.forsythe$Df1,
          ", ", round(x$intermediate$brown.forsythe$Df2, digits),
          "] = ", round(x$intermediate$brown.forsythe$F, digits),
-         ", ", ufs::formatPvalue(x$intermediate$brown.forsythe$p, digits=digits+1),
+         ", ", formatPvalue(x$intermediate$brown.forsythe$p, digits=digits+1),
          ".\n");
   }
 
@@ -376,9 +376,9 @@ pander.oneway <- function(x, digits=x$input$digits,
                           headerStyle = "**",
                           na.print="", ...) {
 
-  ufs::cat0("\n\n", headerStyle, "Oneway Anova for y=", x$input$y.name,
+  cat0("\n\n", headerStyle, "Oneway Anova for y=", x$input$y.name,
        " and x=", x$input$x.name, " (groups: ",
-       ufs::vecTxt(levels(x$input$x)),
+       vecTxt(levels(x$input$x)),
        ")", headerStyle, "\n\n");
 
   if (x$input$omegasq) {
@@ -387,10 +387,10 @@ pander.oneway <- function(x, digits=x$input$digits,
   }
 
   if (x$input$etasq) {
-    ufs::cat0("Eta Squared: ", round(x$input$conf.level * 100),
-         "% CI = [", ufs::formatR(x$output$etasq.ci[1], digits=digits),
-         "; ", ufs::formatR(x$output$etasq.ci[2], digits=digits),
-         "], point estimate = ", ufs::formatR(x$output$etasq, digits=digits));
+    cat0("Eta Squared: ", round(x$input$conf.level * 100),
+         "% CI = [", formatR(x$output$etasq.ci[1], digits=digits),
+         "; ", formatR(x$output$etasq.ci[2], digits=digits),
+         "], point estimate = ", formatR(x$output$etasq, digits=digits));
   }
 
   if (x$input$omegasq | x$input$etasq) {
@@ -400,7 +400,7 @@ pander.oneway <- function(x, digits=x$input$digits,
   x$output$dat[, 1:4] <- round(x$output$dat[, 1:4], digits);
 
   ### Format p-values nicely
-  x$output$dat$p <- ufs::formatPvalue(x$output$dat$p,
+  x$output$dat$p <- formatPvalue(x$output$dat$p,
                                  digits=pvalueDigits,
                                  includeP=FALSE);
 
@@ -420,11 +420,11 @@ pander.oneway <- function(x, digits=x$input$digits,
   }
 
   if (x$input$means) {
-    ufs::cat0("\n\n", headerStyle, "Means for y (", x$input$y.name,
+    cat0("\n\n", headerStyle, "Means for y (", x$input$y.name,
          ") separate for each level of x (", x$input$x.name, "):",
          headerStyle);
     lapply(1:length(x$intermediate$means), function(index) {
-      ufs::cat0("\n\n", x$input$x.name, " = ",
+      cat0("\n\n", x$input$x.name, " = ",
            names(x$intermediate$means[index]), ":  \n\n");
       pander::pander(x$intermediate$means[[index]], digits=digits);
     });
@@ -432,12 +432,12 @@ pander.oneway <- function(x, digits=x$input$digits,
   }
 
   if (x$input$levene) {
-    ufs::cat0("\n\n", headerStyle, "Levene's test for homogeneity of variance:",
+    cat0("\n\n", headerStyle, "Levene's test for homogeneity of variance:",
          headerStyle, "\n\n",
          "F<sub>", x$intermediate$leveneTest[1, 1],
          ", ", x$intermediate$leveneTest[2, 1],
          "</sub> = ", round(x$intermediate$leveneTest[1, 2], digits),
-         ", ", ufs::formatPvalue(x$intermediate$leveneTest[1, 3], digits=digits+1),
+         ", ", formatPvalue(x$intermediate$leveneTest[1, 3], digits=digits+1),
          ".\n");
   }
 
@@ -449,19 +449,19 @@ pander.oneway <- function(x, digits=x$input$digits,
       x$intermediate$posthoc[, 1:(ncol(x$intermediate$posthoc)-1)] <-
         round(x$intermediate$posthoc[, 1:(ncol(x$intermediate$posthoc)-1)], digits);
       x$intermediate$posthoc[, ncol(x$intermediate$posthoc)] <-
-        ufs::formatPvalue(x$intermediate$posthoc[, ncol(x$intermediate$posthoc)], digits=digits+1, includeP=FALSE);
+        formatPvalue(x$intermediate$posthoc[, ncol(x$intermediate$posthoc)], digits=digits+1, includeP=FALSE);
       pander::pander(x$intermediate$posthoc, missing="");
     }
     else if (tolower(x$input$posthoc) %in% c('tukey')) {
       x$intermediate$posthoc <- lapply(x$intermediate$posthoc, function(x) {
         x[, 1:(ncol(x)-1)] <- round(x[, 1:(ncol(x)-1)], digits);
-        x[, ncol(x)] <- ufs::formatPvalue(x[,ncol(x)], digits=digits+1, includeP=FALSE);
+        x[, ncol(x)] <- formatPvalue(x[,ncol(x)], digits=digits+1, includeP=FALSE);
         return(x);
       });
       pander::pander(x$intermediate$posthoc[[1]], missing="");
     }
     else {
-      x$intermediate$posthoc$p.value <- ufs::formatPvalue(x$intermediate$posthoc$p.value, digits=pvalueDigits, includeP=FALSE);
+      x$intermediate$posthoc$p.value <- formatPvalue(x$intermediate$posthoc$p.value, digits=pvalueDigits, includeP=FALSE);
       pander::pander(x$intermediate$posthoc$p.value, missing="");
     }
 
@@ -472,19 +472,19 @@ pander.oneway <- function(x, digits=x$input$digits,
   }
 
   if (x$input$corrections) {
-    ufs::cat0("\n\n", headerStyle, "Welch correction for nonhomogeneous variances:",
+    cat0("\n\n", headerStyle, "Welch correction for nonhomogeneous variances:",
          headerStyle, "\n\n",
          "F<sub>", x$intermediate$welch$parameter[1],
          ", ", round(x$intermediate$welch$parameter[2], digits),
          "</sub> = ", round(x$intermediate$welch$statistic, digits),
-         ", ", ufs::formatPvalue(x$intermediate$welch$p.value, digits=digits+1),
+         ", ", formatPvalue(x$intermediate$welch$p.value, digits=digits+1),
          ".");
-    ufs::cat0("\n\n", headerStyle, "Brown-Forsythe correction for nonhomogeneous variances:",
+    cat0("\n\n", headerStyle, "Brown-Forsythe correction for nonhomogeneous variances:",
          headerStyle, "\n\n",
          "F<sub>", x$intermediate$brown.forsythe$Df1,
          ", ", round(x$intermediate$brown.forsythe$Df2, digits),
          "</sub> = ", round(x$intermediate$brown.forsythe$F, digits),
-         ", ", ufs::formatPvalue(x$intermediate$brown.forsythe$p, digits=digits+1),
+         ", ", formatPvalue(x$intermediate$brown.forsythe$p, digits=digits+1),
          ".\n");
   }
 

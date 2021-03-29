@@ -87,13 +87,13 @@ fanova <- function(data,
   } else {
     res$intermediate$yVarName <- ufs::sharedSubString(y);
     if (is.na(res$intermediate$yVarName))
-      res$intermediate$yVarName <- ufs::vecTxt(y);
+      res$intermediate$yVarName <- vecTxt(y);
   }
 
   res$output$msg <- paste0("Flexible Analysis of Variance was called with:\n\n",
                            "  Dependent variable: ", res$intermediate$yVarName, "\n",
-                           ifelse(is.null(between), "", paste0("  Factors: ", ufs::vecTxt(between), "\n")),
-                           ifelse(is.null(covar), "", paste0("  Covariates: ", ufs::vecTxt(covar), "\n")),
+                           ifelse(is.null(between), "", paste0("  Factors: ", vecTxt(between), "\n")),
+                           ifelse(is.null(covar), "", paste0("  Covariates: ", vecTxt(covar), "\n")),
                            "\n");
 
   ### Set contrast function; first set default contrast for repeated
@@ -266,11 +266,11 @@ print.fanova <- function(x, digits=x$input$digits, ...) {
   print(x$intermediate$secondaryObject);
 
   if(!is.null(x$intermediate$leveneTest)) {
-    ufs::cat0("\n### Levene's test for homogeneity of variance:\n\n",
+    cat0("\n### Levene's test for homogeneity of variance:\n\n",
          "F[", x$intermediate$leveneTest[1, 1],
          ", ", x$intermediate$leveneTest[2, 1],
          "] = ", round(x$intermediate$leveneTest[1, 2], digits),
-         ", ", ufs::formatPvalue(x$intermediate$leveneTest[1, 3], digits=digits+1),
+         ", ", formatPvalue(x$intermediate$leveneTest[1, 3], digits=digits+1),
          ".\n");
   }
 

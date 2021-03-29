@@ -1,7 +1,7 @@
 
 # This file is a generated template, your changes will not be overwritten
 
-factorAnalysisjmvClass <- if (requireNamespace('jmvcore')) R6::R6Class(
+factorAnalysisjmvClass <- if (requireNamespace("jmvcore", quietly=TRUE)) R6::R6Class(
     "factorAnalysisjmvClass",
     inherit = factorAnalysisjmvBase,
     private = list(

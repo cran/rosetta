@@ -264,7 +264,7 @@ getData <- function(filename=NULL, file=NULL,
   #       else {
   #         wb <- XLConnect::loadWorkbook(filename, ...);
   #         dat <- XLConnect::readWorksheet(wb, sheet=1);
-  #         if (requireNamespace('XLConnect')) {
+  #         if (requireNamespace"XLConnect", quietly=TRUE) {
   #           wb <- XLConnect::loadWorkbook(filename, ...);
   #           dat <- XLConnect::readWorksheet(wb, sheet=1);
   #         } else {
