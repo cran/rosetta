@@ -905,7 +905,7 @@ dlvPlot <- function(dat,
 
       }
       res$plot <- res$plot + ggplot2::stat_summary(
-        fun.y = mean,
+        fun = mean,
         geom = "point",
         size = meanDotSize,
         color = singleColor,
@@ -1168,7 +1168,7 @@ dlvPlot <- function(dat,
       }
       res$plot <-
         res$plot + ggplot2::stat_summary(
-          fun.y = mean,
+          fun = mean,
           geom = "point",
           size = meanDotSize,
           position = ggplot2::position_dodge(width = posDodge)

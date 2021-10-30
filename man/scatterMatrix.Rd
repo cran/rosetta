@@ -41,7 +41,7 @@ elements}
 \item{axisLabels}{Passed to ggpairs function to set axisLabels.}
 
 \item{normalHist}{Whether to use the default ggpairs histogram on the
-diagonal of the scattermatrix, or whether to use the \code{\link[=normalHist]{normalHist()}} version.}
+diagonal of the scattermatrix, or whether to use the \code{\link[ufs:normalHist]{ufs::normalHist()}} version.}
 
 \item{progress}{Whether to show a progress bar; set to \code{FALSE} to disable. See
 \code{\link[GGally:ggpairs]{GGally::ggpairs()}} help for more information.}
@@ -53,7 +53,7 @@ diagonal of the scattermatrix, or whether to use the \code{\link[=normalHist]{no
 \item{conf.level}{The confidence level of confidence intervals}
 
 \item{...}{Additional arguments for \code{scatterMatrix()} are passed on to
-\code{\link[=normalHist]{normalHist()}}, and additional arguments for the \code{print} method are passed
+\code{\link[ufs:normalHist]{ufs::normalHist()}}, and additional arguments for the \code{print} method are passed
 on to the default \code{print} method.}
 }
 \value{

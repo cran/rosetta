@@ -99,7 +99,8 @@ fanova <- function(data,
   ### Set contrast function; first set default contrast for repeated
   ### measures anova
   if (is.null(contrast)) {
-    contrast <- 'poly';
+    #contrast <- 'poly'
+    contrastFunction <- NULL
   }
   if (!is.null(contrast)) {
     contrastFunction <- paste0('contr.', contrast);
@@ -109,36 +110,23 @@ fanova <- function(data,
   }
 
   ### Convert 'between' variables (factors) to factors
-  for (currentVar in between[!is.factor(data[, between])]) {
-    res$output$msg <- paste0(res$output$msg,
-                             "Between-subjects factor '", currentVar,
-                             "' does not have class 'factor' in dataframe '",
-                             res$intermediate$dataName, "'. Converting it now.\n");
-    data[, currentVar] <- factor(data[, currentVar]);
+  for (currentVar in seq_along(between)) {
+    if (!is.factor(data[, between[currentVar]])) {
+      cat0("Between-subjects factor ", between[currentVar],
+           " does not have class 'factor' in dataframe '",
+           res$intermediate$dataName, "'. Converting it now.\n");
+      data[, between[currentVar]] <- factor(data[, between[currentVar]]);
+    }
   }
 
   if (length(y) == 1) {
-    ### This is a simple anova; check whether it's oneway, factorial,
-    ### or ancova
-    if (is.null(covar) && (length(between) == 1)) {
-      y <- data[, y];
-      x <- data[, between];
-      res$intermediate$formula <- paste(y, "~", between);
-      res$intermediate$secondaryObject <-
-        oneway(y = y,
-               x = x,
-               plot=plot,
-               levene=levene);
-      ### Get plot and store it here
-      if (plot)
-        res$output$plot <-
-          res$intermediate$secondaryObject$output$plot;
-    } else {
-      ### Factorial anova or ancova
 
-      ### Generate formula
+    ### oneway, factorial anova or ancova
+
+      ### Generate formula (interactions between factors only)
+      factorPart <- paste(y, "~", paste(c(between), collapse="*"))
       res$intermediate$formula <-
-        stats::formula(paste(y, "~", paste(c(between, covar), collapse="*")));
+        stats::formula(paste(c(factorPart, covar), collapse = "+"));
 
       ### Run linear model
       res$intermediate$primaryObject <-
@@ -150,16 +138,34 @@ fanova <- function(data,
       res$intermediate$secondaryObject <-
         car::Anova(res$intermediate$primaryObject, type=3);
 
+      ### Compute omega effect sizes
+      linmodel <- res$intermediate$primaryObject
+      tvals <- summary(linmodel)$coefficients[,3]
+      dfs <- summary(linmodel)$df
+      fstat <- summary(linmodel)$fstatistic
+
+      if (requireNamespace("effectsize", quietly = TRUE)) {
+        omegasq1 <- effectsize::F_to_omega2(f=fstat[1], df=fstat[2], df_error=fstat[3]);
+        omegasq2 <- effectsize::t_to_omega2(t=tvals, df_error=dfs[2]);
+        omegasq2[1,] <- omegasq1;
+        ome <- as.data.frame(round(omegasq2[,-2],3));
+        rownames(ome)[1] <- "model";
+        res$intermediate$omegas <- ome;
+      } else {
+        omegasq1 <- ufs::convert.f.to.omegasq(f=fstat[1], df1=fstat[2], df2=fstat[3]);
+        omegasq2 <- NA;
+        res$intermediate$omegas <- omegasq1;
+      }
+
       ### Make a plot if we want one
       if (plot) {
-        if (is.null(covar) && (length(between) == 2)) {
+        if (is.null(covar) && (length(between) < 3)) {
+          if (length(between) == 1) moderator <- NULL
+          if (length(between) == 2) moderator <- between[2]
           res$output$plot <- dlvPlot(data,
                                      y=y,
                                      x=between[1],
-                                     z=between[2])$plot +
-            ggplot2::ggtitle(paste0(between[1], ", ",
-                           between[2], " and ",
-                           y));
+                                     z=moderator)$plot
         } else {
           warning("Sorry, I can only generate a plot for oneway or ",
                   "two-way anovas (not for ancovas or anovas with ",
@@ -169,14 +175,17 @@ fanova <- function(data,
 
       ### Optional Levene's test
       if (levene) {
-        leveneY <- data[, y];
-        leveneGroups <-
-          as.factor(apply(data[, between], 1, function(x) return(paste0(x, collapse="-"))));
+        if (length(between) == 1) {
+          leveneGroups <- as.factor(data[,between])
+        } else {
+          leveneGroups <-
+            as.factor(apply(data[, between], 1, function(x) return(paste0(x, collapse="-"))))
+        }
         res$intermediate$leveneTest <-
-          car::leveneTest(leveneY, group=leveneGroups, center=mean);
+          car::leveneTest(y = data[,y], group = leveneGroups)
       }
 
-    }
+
   } else {
     ### We need to do a repeated measures anova, so first convert the
     ### data to a long format.
@@ -200,10 +209,14 @@ fanova <- function(data,
     ### factors and the time variable (called 'time'), and
     ### the random slope for time (the final term).
 
+    covarPart <- NULL
+    covarPart <- if (!is.null(covar)) paste(c(covar), collapse=" + ")
+    factorPart <- paste(c(between, "time"), collapse=" * ")
     res$intermediate$formula <-
-      stats::formula(paste("y ~", paste(c(between, covar), collapse=" * "),
-                    "+", paste(c(between, "time"), collapse=" * "),
-                    "+ (1|time)"));
+      stats::formula(paste(paste("y ~",
+                                 paste(c(covarPart, factorPart), collapse=" + "),
+                                 "+ (1|time)")))
+
 
     ### Run the mixed model
     res$intermediate$primaryObject <-
@@ -265,8 +278,18 @@ print.fanova <- function(x, digits=x$input$digits, ...) {
   }
   print(x$intermediate$secondaryObject);
 
+  if (length(x$input$y) == 1) {
+    cat0("\n\nPartial omega squared effect sizes \n")
+    print(x$intermediate$omegas)
+    cat0("\n\nParameter estimates, omnibus F-test and R-squared values \n")
+  }
+
+  if (length(x$input$y) > 1) cat0("\n\nMultilevel results \n\n")
+
+  print(summary(x$intermediate$primaryObject), correlation = FALSE)
+
   if(!is.null(x$intermediate$leveneTest)) {
-    cat0("\n### Levene's test for homogeneity of variance:\n\n",
+    cat0("\n### Levene's test for homogeneity of variances:\n\n",
          "F[", x$intermediate$leveneTest[1, 1],
          ", ", x$intermediate$leveneTest[2, 1],
          "] = ", round(x$intermediate$leveneTest[1, 2], digits),

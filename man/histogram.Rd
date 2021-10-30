@@ -4,7 +4,13 @@
 \alias{histogram}
 \title{Simple function to create a histogram}
 \usage{
-histogram(vector, bins = NULL, theme = ggplot2::theme_bw())
+histogram(
+  vector,
+  bins = NULL,
+  theme = ggplot2::theme_bw(),
+  xLabel = NULL,
+  yLabel = "Count"
+)
 }
 \arguments{
 \item{vector}{A variable or vector.}
@@ -13,6 +19,9 @@ histogram(vector, bins = NULL, theme = ggplot2::theme_bw())
 values in \code{vector} or \code{20}, whichever is lower.}
 
 \item{theme}{The ggplot2 theme to use.}
+
+\item{xLabel, yLabel}{Labels for x and y axes; variable name is used for
+x axis if no label is specified.}
 }
 \value{
 A ggplot2 plot.

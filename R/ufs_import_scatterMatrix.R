@@ -16,14 +16,14 @@
 #' @param pointSize Size of the points in the scatterplots
 #' @param axisLabels Passed to ggpairs function to set axisLabels.
 #' @param normalHist Whether to use the default ggpairs histogram on the
-#' diagonal of the scattermatrix, or whether to use the [normalHist()] version.
+#' diagonal of the scattermatrix, or whether to use the [ufs::normalHist()] version.
 #' @param progress Whether to show a progress bar; set to `FALSE` to disable. See
 #' [GGally::ggpairs()] help for more information.
 #' @param theme The ggplot2 theme to use.
 #' @param hideGrid Whether to hide the gridlines in the plot.
 #' @param conf.level The confidence level of confidence intervals
 #' @param ...  Additional arguments for `scatterMatrix()` are passed on to
-#' [normalHist()], and additional arguments for the `print` method are passed
+#' [ufs::normalHist()], and additional arguments for the `print` method are passed
 #' on to the default `print` method.
 #' @return
 #'

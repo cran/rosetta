@@ -2,9 +2,9 @@
 <!-- badges: start -->
 
 [![Pipeline
-status](https://gitlab.com/r-packages/rosetta/badges/prod/pipeline.svg)](https://gitlab.com/r-packages/rosetta/commits/prod)
+status](https://gitlab.com/r-packages/rosetta/badges/prod/pipeline.svg)](https://gitlab.com/r-packages/rosetta/-/commits/prod)
 [![Coverage
-status](https://codecov.io/gl/r-packages/rosetta/branch/prod/graph/badge.svg)](https://codecov.io/gl/r-packages/rosetta?branch=prod)
+status](https://codecov.io/gl/r-packages/rosetta/branch/prod/graph/badge.svg)](https://app.codecov.io/gl/r-packages/rosetta?branch=prod)
 [![Version on
 CRAN](https://www.r-pkg.org/badges/version/rosetta?color=brightgreen)](https://cran.r-project.org/package=rosetta)
 [![Version on
@@ -13,7 +13,7 @@ CRAN](https://cranlogs.r-pkg.org/badges/last-month/rosetta?color=brightgreen)](h
 CRAN](https://cranlogs.r-pkg.org/badges/grand-total/rosetta?color=brightgreen)](https://cran.r-project.org/package=rosetta)
 <!-- badges: end -->
 
-# <img src='img/hex-logo.png' align="right" height="200" /> rosetta 📦
+# <img src='man/figures/logo.png' align="right" height="120" /> rosetta 📦
 
 rosetta: Parallel Use of Statistical Packages in Teaching
 
@@ -21,13 +21,11 @@ The pkgdown website for this project is located at
 <https://r-packages.gitlab.io/rosetta/>.
 
 <!--------------------------------------------->
-
 <!-- Start of a custom bit for every package -->
-
 <!--------------------------------------------->
 
 When teaching statistics, it can often be desirable to uncouple the
-content from specific software packages. To easy such efforts, the
+content from specific software packages. To ease such efforts, the
 Rosetta Stats website (<https://rosettastats.com>) allows comparing
 analyses in different packages. This package is the companion to the
 Rosetta Stats website, aiming to provide functions that produce output
@@ -42,9 +40,7 @@ SPSS and R in parallel or to facilitate switching from SPSS to R. It is
 geared towards application of statistics to psychological science.
 
 <!--------------------------------------------->
-
 <!--  End of a custom bit for every package  -->
-
 <!--------------------------------------------->
 
 ## Installation

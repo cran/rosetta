@@ -296,9 +296,11 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
                                      res$intermediate$predictedY.dichotomous,
                                      dnn=c("Observed", "Predicted"));
   row.names(res$output$crossTab.model) <-
-    levelNames;
+    #levelNames;
+    sort(unique(res$intermediate$dat.raw[, 1]));
   colnames(res$output$crossTab.model) <-
-    levelNames;
+    #levelNames;
+    sort(unique(res$intermediate$predictedY.dichotomous));
 
   ### Best predictions on the basis of the null model is either 0 or 1
   if (
@@ -306,9 +308,9 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
       table(res$intermediate$dat.raw[, 1])[1] /
       sum(table(res$intermediate$dat.raw[, 1]))
     ) < .5) {
-    res$intermediate$predictedY.null <- rep(0, nrow(res$intermediate$dat.raw));
-  } else {
     res$intermediate$predictedY.null <- rep(1, nrow(res$intermediate$dat.raw));
+  } else {
+    res$intermediate$predictedY.null <- rep(0, nrow(res$intermediate$dat.raw));
   }
 
   ### Build crosstables
@@ -318,6 +320,7 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
   res$output$crossTab.null <- table(res$intermediate$dat.raw[, 1],
                                     res$intermediate$predictedY.null,
                                     dnn=c("Observed", "Predicted"));
+
   row.names(res$output$crossTab.null) <-
     levelNames;
 
@@ -331,10 +334,18 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
 
   ### Compute the proportion of correct predictions for the null model
   ### and the real model
-  res$output$proportionCorrect.model <- sum(diag(res$output$crossTab.model)) /
-    sum(res$output$crossTab.model);
   res$output$proportionCorrect.null <- max(res$output$crossTab.null) /
     sum(res$output$crossTab.null);
+  if (ncol(res$output$crossTab.model) == 2) {
+    res$output$proportionCorrect.model <- sum(diag(res$output$crossTab.model)) /
+      sum(res$output$crossTab.model);
+  } else {
+    res$output$proportionCorrect.model <-
+      isTRUE(
+        res$intermediate$predictedY.raw ==
+          res$intermediate$dat.raw[, 1]
+      ) / sum(res$output$crossTab.model);
+  }
 
   if (plot) {
     if (length(res$intermediate$variables_namesOnly) == 2) {
@@ -374,6 +385,7 @@ logRegr <- function(formula, data=NULL, conf.level=.95, digits=2,
       ### Create dataframe for observed values
       res$intermediate$plotDatObserved <- res$intermediate$dat.raw;
       tmpDat <- res$intermediate$dat.raw;
+
       if (is.numeric(binObservedMeans)) {
 
         tmpDat[, res$intermediate$variables_namesOnly[2]] <-

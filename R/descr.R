@@ -250,7 +250,7 @@ descr <- function(x,
       q1 <- stats::quantile(x, type=quantileType)[2];
       q3 <- stats::quantile(x, type=quantileType)[4];
 
-      dataShape <- ufs::dataShape(x, plots=FALSE);
+      suppressWarnings(dataShape <- ufs::dataShape(x, plots=FALSE));
 
       res <-
         data.frame(
@@ -286,7 +286,7 @@ descr <- function(x,
       }
 
       if (histogram) {
-        attr(res, "histogram") <- histogram(x);
+        attr(res, "histogram") <- ufs::normalHist(x);
       }
 
       if (boxplot) {
