@@ -1,6 +1,6 @@
 Package: rosetta
 Title: Parallel Use of Statistical Packages in Teaching
-Version: 0.3.8
+Version: 0.3.9
 Authors@R: c(
     person(given = "Gjalt-Jorn",
            family = "Peters",
@@ -39,18 +39,19 @@ LazyData: true
 RoxygenNote: 7.1.2
 Depends: R (>= 3.0.0)
 Suggests: effectsize, GGally (>= 2.0), GPArotation (>= 2014.11),
-        jmvcore (>= 1.0), MBESS (>= 4.8), rmarkdown, testthat
+        jmvcore (>= 1.0), MBESS (>= 4.8), rio (>= 0.5.10), rmarkdown,
+        testthat
 Imports: car (>= 3.0.2), diptest (>= 0.75), ggplot2 (>= 2.2), ggrepel
         (>= 0.8), gridExtra (>= 2.3), methods (>= 3.0), lavaan (>=
         0.6-5), lme4 (>= 1.1.19), multcompView (>= 0.1), pander (>=
-        0.6.3), plyr (>= 1.8.4), psych (>= 1.8.4), pwr (>= 1.2.2), rio
-        (>= 0.5.10), rmdpartials (>= 0.5.8), ufs (>= 0.4.0), knitr,
-        kableExtra, viridis
+        0.6.3), plyr (>= 1.8.4), psych (>= 1.8.4), pwr (>= 1.2.2),
+        rmdpartials (>= 0.5.8), ufs (>= 0.5.2), knitr, kableExtra,
+        viridis
 NeedsCompilation: no
-Packaged: 2021-10-13 23:03:03 UTC; micro
+Packaged: 2021-11-13 22:40:59 UTC; gjalt
 Author: Gjalt-Jorn Peters [aut, cre] (<https://orcid.org/0000-0002-0336-9589>),
   Ron Pat-El [ctb] (<https://orcid.org/0000-0002-4742-0163>),
   Peter Verboon [ctb] (<https://orcid.org/0000-0001-8656-0890>),
   Melissa Gordon Wolf [ctb] (<https://orcid.org/0000-0001-7677-0659>)
 Repository: CRAN
-Date/Publication: 2021-10-30 14:10:04 UTC
+Date/Publication: 2021-11-13 23:00:02 UTC

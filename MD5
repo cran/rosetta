@@ -1,5 +1,5 @@
-27f9acadb64a2eede21b8e8c71d06b40 *DESCRIPTION
-98cd1eee0177618f3684379c8ca77576 *NAMESPACE
+1fe063048b1dd281c045ea0703812582 *DESCRIPTION
+ed77ce3420e244941fa15b2301d18586 *NAMESPACE
 277835fa55cc92f6b5acb8d2f7a17fdc *R/ad.test_from_nortest.R
 a260b69853b34c838642378e243f3998 *R/buildModMedSemModel.R
 fab85987fc7eb61ca8a0b0572108776c *R/cat0.R
@@ -9,7 +9,7 @@ e43d4366c31307996baf2548d61b8513 *R/crossTab.R
 92f68f055a452bba375a32cee2b101b3 *R/data-pp15.R
 1363878e51fc1b14ac8b4dab9a92f759 *R/dataReduction.R
 8352a24bf835622051cfe58b2b49d7d2 *R/dataShape.R
-9bc7de159dcdd6d9be7a28fde1035ac4 *R/descr.R
+6731e492f9925f47f0bd54d7762dfbf0 *R/descr.R
 15921aacf83650b5f119f727cbb0e3ab *R/descriptiveCIs.R
 57a18007f4b2c1a8d0768e3a00e7a43d *R/dlvPlot.R
 6176c331d4e5be5f2fa19008ee5beeff *R/examine.R
@@ -58,6 +58,7 @@ a988b3ff3295e2b8019644e3e6fb7c39 *R/recode.R
 973617433d0984d3a890c9eb63ef7a63 *R/reliability.R
 f5cfefe0e2eaf3dfb2a343f1e0f744b4 *R/repeatStr.R
 6ccf8b1fcfac13d9099e1d18b7bb9428 *R/samplingDistribution.R
+1ceef517c21b45c20cdeaa9b5894956c *R/scatterPlot.R
 0a9de3d9f23553eae26b8d11b70cca48 *R/sums.R
 bb5818ae57eee56e85725d5bebd4d6d2 *R/ufs_import_scatterMatrix.R
 cdfae74a595b32db1fd56d44d01b1259 *R/useAll.R
@@ -118,6 +119,7 @@ bdbc8e3a129b4b04b700d4cf298c08da *man/rosettaLogRegr.Rd
 461936b9fdc9e71f304b4b6916fa29ef *man/rosettaRegr.Rd
 f491a78cad23d77b7114c9ab7a106bda *man/rosettaReliability.Rd
 f65c1f510d7d35a65a27dbb4d555ce33 *man/scatterMatrix.Rd
+869dada1e3da47087281d0701358fec1 *man/scatterPlot.Rd
 53daaa12b0ecb4907acd206e7b4fcde2 *man/varView.Rd
 2660664963c8c770bd4eb89ddd95db62 *man/vecTxt.Rd
 5290a08fed98ce7db2a505df715e937a *tests/testthat.R

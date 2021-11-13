@@ -286,7 +286,11 @@ descr <- function(x,
       }
 
       if (histogram) {
-        attr(res, "histogram") <- ufs::normalHist(x);
+        attr(res, "histogram") <-
+          ufs::normalHist(
+            x,
+            returnPlotOnly = TRUE
+          );
       }
 
       if (boxplot) {
