@@ -10,6 +10,9 @@ fanova(
   y,
   between = NULL,
   covar = NULL,
+  withinReference = 1,
+  betweenReference = NULL,
+  withinNames = NULL,
   plot = FALSE,
   levene = FALSE,
   digits = 2,
@@ -32,6 +35,14 @@ factor(s).}
 
 \item{covar}{A vector with the variables name(s) of the covariate(s).}
 
+\item{withinReference}{Number of reference category (variable) for within
+subjects treatment contrast (dummy).}
+
+\item{betweenReference}{Name of reference category for between subject factor
+in RM anova.}
+
+\item{withinNames}{Names of within subjects categories (dependent variables).}
+
 \item{plot}{Whether to produce a plot. Note that a plot is only produced for
 oneway and twoway anova and oneway repeated measures designs: if covariates
 or more than two between-subjects factors are specified, not plot is
@@ -45,7 +56,7 @@ moderator (and the first predictor is plotted on the x axis).}
 \item{digits}{Number of digits (actually: decimals) to use when printing
 results. The p-value is printed with one extra digit.}
 
-\item{contrast}{This functionality has not been implemented yet.}
+\item{contrast}{This functionality has been implemented for repeated measures only.}
 
 \item{x}{The object to print (i.e. as produced by \code{regr}).}
 
@@ -98,9 +109,13 @@ for linear and logistic regression and \code{\link{oneway}},
 functions used behind the scenes.
 }
 \author{
-Gjalt-Jorn Peters
+Gjalt-Jorn Peters and Peter Verboon
 
 Maintainer: Gjalt-Jorn Peters \href{mailto:gjalt-jorn@userfriendlyscience.com}{gjalt-jorn@userfriendlyscience.com}
 }
+\keyword{anova}
+\keyword{factorial}
 \keyword{hplot}
 \keyword{htest}
+\keyword{measures}
+\keyword{repeated}

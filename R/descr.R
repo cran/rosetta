@@ -8,12 +8,12 @@
 #' [psych::psych] package.
 #'
 #' The Hartigans' Dip Test may be unfamiliar to users; it is a measure of uni-
-#' vs. multimodality, computed by [diptest::dip.test()] from the
-#' `dip.test` package. Depending on the sample size, values over
+#' vs. multimodality, computed by the `dip.test()` function from the
+#' `{diptest}` package from the. Depending on the sample size, values over
 #' .025 can be seen as mildly indicative of multimodality, while values over
 #' .05 probably warrant closer inspection (the p-value can be obtained using
-#' [diptest::dip.test()]; also see Table 1 of Hartigan & Hartigan (1985) for
-#' an indication as to critical values).
+#' that `dip.test()` function from `{diptest}`; also see Table 1 of
+#' Hartigan & Hartigan (1985) for an indication as to critical values).
 #'
 #' @aliases descr descriptives
 #' @param x The vector/variable for which to return descriptives, or the data

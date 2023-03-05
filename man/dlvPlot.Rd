@@ -20,7 +20,7 @@ dlvPlot(
   error = "lines",
   dotsize = "density",
   singleColor = "black",
-  comparisonColors = RColorBrewer::brewer.pal(8, "Set1"),
+  comparisonColors = rosetta::opts$get("dlvPlotCompCols"),
   densityDotBaseSize = 3,
   normalDotBaseSize = 1,
   violinAlpha = 0.2,

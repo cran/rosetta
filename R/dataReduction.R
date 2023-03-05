@@ -57,7 +57,7 @@
 #' @return An object with the object resulting from the call to the
 #' `psych` functions and some extracted information that will be printed.
 #'
-#' @rdname rosettaDataReduction
+#' @rdname dataReduction
 #' @aliases dataReduction factorAnalysis principalComponentAnalysis
 #'
 #' @examples ### Load example dataset
@@ -80,19 +80,21 @@
 #'   scree = TRUE
 #' );
 #'
-#' ### To get more output, show the
-#' ### output as Rmd Partial in the viewer,
-#' ### and color/size the factor loadings
-#' rosetta::rosettaDataReduction_partial(
-#'   rosetta::factorAnalysis(
-#'     data = pp15,
-#'     items = items,
-#'     nfactors = "eigen",
-#'     summary = TRUE,
-#'     correlations = TRUE,
-#'     colorLoadings = TRUE
-#'   )
-#' );
+#' if (FALSE) {
+#'   ### To get more output, show the
+#'   ### output as Rmd Partial in the viewer,
+#'   ### and color/size the factor loadings
+#'   rosetta::rosettaDataReduction_partial(
+#'     rosetta::factorAnalysis(
+#'       data = pp15,
+#'       items = items,
+#'       nfactors = "eigen",
+#'       summary = TRUE,
+#'       correlations = TRUE,
+#'       colorLoadings = TRUE
+#'     )
+#'   );
+#' }
 #'
 #' @export
 factorAnalysis <- function(data,
@@ -127,7 +129,7 @@ factorAnalysis <- function(data,
 
 ###-----------------------------------------------------------------------------
 
-#' @rdname rosettaDataReduction
+#' @rdname dataReduction
 #' @export
 principalComponentAnalysis <- function(data,
                                        items,
@@ -451,7 +453,7 @@ dataReduction <- function(data,
 
 ###-----------------------------------------------------------------------------
 
-#' @rdname rosettaDataReduction
+#' @rdname dataReduction
 #' @export
 rosettaDataReduction_partial <- function(x,
                                          digits = x$input$digits,
@@ -477,7 +479,7 @@ rosettaDataReduction_partial <- function(x,
 
 ###-----------------------------------------------------------------------------
 
-#' @rdname rosettaDataReduction
+#' @rdname dataReduction
 #' @method knit_print rosettaDataReduction
 #' @importFrom knitr knit_print
 #' @export
@@ -498,7 +500,40 @@ knit_print.rosettaDataReduction <- function(x,
 
 ###-----------------------------------------------------------------------------
 
-#' @rdname rosettaDataReduction
+dataReduction_loadingColoring <- function(loadingDf,
+                                          digits) {
+
+  loadingDf[, 1:(ncol(loadingDf) - 1)] <-
+    data.frame(
+      lapply(
+        loadingDf[, 1:(ncol(loadingDf) - 1),
+                          drop=FALSE],
+        function(column) {
+          kableExtra::cell_spec(
+            round(column, digits),
+            bold = T,
+            color = kableExtra::spec_color(
+              abs(column),
+              end = 0.9,
+              direction = -1,
+              scale_from = c(0, 1)
+            ),
+            font_size = kableExtra::spec_font_size(
+              abs(column),
+              scale_from = c(-1, 1)
+            )
+          )
+        }
+      )
+    );
+
+  return(loadingDf);
+
+}
+
+###-----------------------------------------------------------------------------
+
+#' @rdname dataReduction
 #' @export
 print.rosettaDataReduction <- function(x,
                                        digits = x$input$digits,
@@ -526,38 +561,33 @@ print.rosettaDataReduction <- function(x,
       cat0(FactorName, " loadings\n\n");
       print(round(x$output$loadings, digits=x$input$digits));
 
-      if (x$input$colorLoadings) {
+      if (((pkgdown_rdname() %in% "factorAnalysis") ||
+           (pkgdown_rdname() %in% "dataReduction"))
+           ||
+          in_pkgdown_example()
+          ) {
 
-        x$output$loadings[, 1:(ncol(x$output$loadings) - 1)] <-
-          data.frame(
-            lapply(
-              x$output$loadings[, 1:(ncol(x$output$loadings) - 1),
-                                drop=FALSE],
-              function(column) {
-                kableExtra::cell_spec(
-                  round(column, x$input$digits),
-                  bold = T,
-                  color = kableExtra::spec_color(
-                    abs(column),
-                    end = 0.9,
-                    direction = -1,
-                    scale_from = c(0, 1)
-                  ),
-                  font_size = kableExtra::spec_font_size(
-                    abs(column),
-                    scale_from = c(-1, 1)
-                  )
-                )
-              }
-            )
-          );
+        ### Do nothing, actually
+
+      } else {
+
+        if (x$input$colorLoadings) {
+
+          x$output$loadings <-
+            dataReduction_loadingColoring(
+              x$output$loadings,
+              digits = x$input$digits
+            );
+
+        }
+
+        ufs::kblXtra(
+          x$output$loadings,
+          digits = digits,
+          viewer = TRUE
+        );
+
       }
-
-      ufs::kblXtra(
-        x$output$loadings,
-        digits = digits,
-        viewer = TRUE
-      );
 
     }
 

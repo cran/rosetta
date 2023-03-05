@@ -167,12 +167,12 @@ Note that R (of course) has many similar functions, such as
 \link[psych:00.psych-package]{psych::psych} package.
 
 The Hartigans' Dip Test may be unfamiliar to users; it is a measure of uni-
-vs. multimodality, computed by \code{\link[diptest:dip.test]{diptest::dip.test()}} from the
-\code{dip.test} package. Depending on the sample size, values over
+vs. multimodality, computed by the \code{dip.test()} function from the
+\code{{diptest}} package from the. Depending on the sample size, values over
 .025 can be seen as mildly indicative of multimodality, while values over
 .05 probably warrant closer inspection (the p-value can be obtained using
-\code{\link[diptest:dip.test]{diptest::dip.test()}}; also see Table 1 of Hartigan & Hartigan (1985) for
-an indication as to critical values).
+that \code{dip.test()} function from \code{{diptest}}; also see Table 1 of
+Hartigan & Hartigan (1985) for an indication as to critical values).
 }
 \examples{
 ### Simplest example with default settings

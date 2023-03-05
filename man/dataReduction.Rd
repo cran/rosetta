@@ -187,18 +187,20 @@ rosetta::factorAnalysis(
   scree = TRUE
 );
 
-### To get more output, show the
-### output as Rmd Partial in the viewer,
-### and color/size the factor loadings
-rosetta::rosettaDataReduction_partial(
-  rosetta::factorAnalysis(
-    data = pp15,
-    items = items,
-    nfactors = "eigen",
-    summary = TRUE,
-    correlations = TRUE,
-    colorLoadings = TRUE
-  )
-);
+if (FALSE) {
+  ### To get more output, show the
+  ### output as Rmd Partial in the viewer,
+  ### and color/size the factor loadings
+  rosetta::rosettaDataReduction_partial(
+    rosetta::factorAnalysis(
+      data = pp15,
+      items = items,
+      nfactors = "eigen",
+      summary = TRUE,
+      correlations = TRUE,
+      colorLoadings = TRUE
+    )
+  );
+}
 
 }
